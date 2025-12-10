@@ -1,0 +1,62 @@
+#wrapper {
+  display: flex;
+  overflow-x: hidden;
+  height: 100vh;
+  background-color: #f8f9fa;
+}
+
+#sidebar-wrapper {
+  min-height: 100vh;
+  width: 15rem;
+  transition: margin 0.25s ease-out;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: -15rem;
+}
+
+#page-content-wrapper {
+  width: 100%;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+@media (max-width: 767.98px) {
+  #sidebar-wrapper {
+    margin-left: -15rem;
+    position: fixed;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+    margin-left: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Activo (equivalente a .router-link-active en Vue) */
+.list-group-item.active {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+}
+
+/* Estilos de links */
+.list-group-item-action {
+  color: rgba(255, 255, 255, 0.8) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.list-group-item-action:hover:not(.active) {
+  color: #ffc107 !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar-heading {
+  background-color: #ffc107 !important;
+}
+
+.text-secondary {
+  border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
+}

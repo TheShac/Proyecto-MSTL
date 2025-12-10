@@ -1,0 +1,12 @@
+.sidebar-panel {
+  transform: translateX(0);
+  transition: transform 0.25s ease;
+}
+
+.hover-effect {
+  cursor: pointer;
+}
+
+.hover-effect:hover {
+  background-color: #f8f9fa;
+}

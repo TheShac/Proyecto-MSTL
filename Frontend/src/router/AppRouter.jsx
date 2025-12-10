@@ -1,0 +1,90 @@
+// src/router/AppRouter.jsx
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+
+// Layouts
+import Navbar from '../components/Navbar';
+import AdminLayout from '../layouts/AdminLayout';
+
+// Vistas Cliente
+import Dashboard from '../views/client/Dashboard';
+import Profile from '../views/client/Profile';
+
+// Vistas Admin
+import DashboardAdmin from '../views/admin/DashboardAdmin';
+import AdminProducts from '../views/admin/AdminProducts';
+import AdminEmployees from '../views/admin/AdminEmployees';
+import AdminInventory from '../views/admin/AdminInventory';
+import AdminOrders from '../views/admin/AdminOrders';
+
+// Auth
+import Login from '../views/shared/Login';
+import Register from '../views/shared/Register';
+
+// Contexto de autenticación
+import { useAuth } from '../stores/AuthContext';
+
+const PrivateRoute = ({ children }) => {
+  const auth = useAuth();
+  return auth.isLoggedIn ? children : <Navigate to="/login" replace />;
+};
+
+const AdminRoute = ({ children }) => {
+  const auth = useAuth();
+  return auth.isAdmin ? children : <Navigate to="/" replace />;
+};
+
+const AppRouter = () => {
+  return (
+    <Routes>
+      {/* RUTAS PÚBLICAS */}
+      <Route
+        path="/"
+        element={
+          <>
+            <Navbar />
+            <Dashboard />
+          </>
+        }
+      />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+
+      {/* RUTA PRIVADA DEL CLIENTE */}
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <>
+              <Navbar />
+              <Profile />
+            </>
+          </PrivateRoute>
+        }
+      />
+
+      {/* RUTAS ADMIN (PRIVADAS + ADMIN) */}
+      <Route
+        path="/admin"
+        element={
+          <PrivateRoute>
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          </PrivateRoute>
+        }
+      >
+        <Route path="dashboard" element={<DashboardAdmin />} />
+        <Route path="products" element={<AdminProducts />} />
+        <Route path="inventory" element={<AdminInventory />} />
+        <Route path="orders" element={<AdminOrders />} />
+        <Route path="employees" element={<AdminEmployees />} />
+      </Route>
+
+      {/* RUTA POR DEFECTO */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
+export default AppRouter;
