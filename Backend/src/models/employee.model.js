@@ -30,9 +30,10 @@ export const EmployeeModel = {
   // Obtener todos los usuarios empleados
   findAll: async () => {
     const [rows] = await pool.query(
-      `SELECT e.uuid_emps, e.emp_nombre, e.emp_apellido, e.emp_telefono, e.emp_email, e.emp_username, r.nombre_rol
-       FROM UserEmps_STL e 
-       LEFT JOIN Role r ON e.id_role = r.id_role`
+      `SELECT e.uuid_emps, e.emp_nombre, e.emp_apellido, e.emp_telefono,
+       e.emp_email, e.emp_username, e.id_role, r.nombre_rol
+      FROM UserEmps_STL e
+      LEFT JOIN Role r ON e.id_role = r.id_role`
     );
     return rows;
   },

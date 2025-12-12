@@ -8,6 +8,7 @@ CREATE TABLE Genero (
 )ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
+SELECT * FROM Genero;
 
 CREATE TABLE Editorial (
   id_editorial INT AUTO_INCREMENT PRIMARY KEY,
@@ -15,8 +16,8 @@ CREATE TABLE Editorial (
 )ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
+SELECT * FROM Editorial;
 
-SELECT * FROM Role;
 INSERT INTO Role (nombre_rol) VALUES
 ('stl_emp'),
 ('stl_administrador'),
@@ -27,6 +28,7 @@ CREATE TABLE Role (
 )ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
+SELECT * FROM Role;
 
 -- TABLAS DE USUARIOS
 

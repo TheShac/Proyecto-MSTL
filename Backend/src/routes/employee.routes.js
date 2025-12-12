@@ -4,7 +4,7 @@ import { createEmployee, getAllEmployees, getEmployeeById, updateEmployee, delet
 
 const router = Router();
 
-router.use(protect); // todas requieren autenticación
+router.use(protect);
 
 router.post('/', createEmployee);
 router.get('/', getAllEmployees);

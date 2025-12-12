@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import userRoutes from './routes/user.routes.js';
 import productRoutes from './routes/product.routes.js';
 import employeeRouter from './routes/employee.routes.js'
-
+import catalogoRouter from './routes/catalogo.routes.js';
 
 dotenv.config();
 
@@ -20,5 +20,6 @@ app.use(morgan('dev'));
 app.use('/api/auth', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/employees', employeeRouter);
+app.use('/api/catalogo', catalogoRouter);
 
 export default app;

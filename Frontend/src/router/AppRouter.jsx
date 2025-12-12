@@ -12,10 +12,14 @@ import Profile from '../views/client/Profile';
 
 // Vistas Admin
 import DashboardAdmin from '../views/admin/DashboardAdmin';
-import AdminProducts from '../views/admin/AdminProducts';
-import AdminEmployees from '../views/admin/AdminEmployees';
-import AdminInventory from '../views/admin/AdminInventory';
+import AdminProducts from '../views/admin/products/AdminProducts';
+import AdminEmployees from '../views/admin/employees/AdminEmployees';
+import AdminInventory from '../views/admin/inventory/AdminInventory';
 import AdminOrders from '../views/admin/AdminOrders';
+import AdminAnaliticas from '../views/admin/AdminAnaliticas';
+import AdminClients from '../views/admin/AdminClients';
+import AdminConfiguration from '../views/admin/AdminConfiguration';
+import AdminAProfile from '../views/admin/AdminProfile';
 
 // Auth
 import Login from '../views/shared/Login';
@@ -79,6 +83,10 @@ const AppRouter = () => {
         <Route path="inventory" element={<AdminInventory />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="employees" element={<AdminEmployees />} />
+        <Route path="analytics" element={<AdminAnaliticas />} />
+        <Route path="clients" element={<AdminClients />} />
+        <Route path="configuration" element={<AdminConfiguration />} />
+        <Route path="profile" element={<AdminAProfile />} />
       </Route>
 
       {/* RUTA POR DEFECTO */}

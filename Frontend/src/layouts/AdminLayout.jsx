@@ -20,7 +20,6 @@ const AdminLayout = () => {
     navigate('/', { replace: true });
   };
 
-  // Comportamiento responsive inicial (similar a onMounted)
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
     setSidebarOpen(!isMobile);
@@ -95,7 +94,7 @@ const AdminLayout = () => {
             }
           >
             <i className="bi bi-graph-up me-2"></i>
-            Analíticas
+            Estadisticas
           </NavLink>
 
           <NavLink

@@ -1,4 +1,3 @@
-// src/views/admin/AdminOrders.jsx
 import React from 'react';
 
 const AdminOrders = () => {

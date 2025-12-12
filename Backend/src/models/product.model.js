@@ -13,8 +13,13 @@ export const ProductModel = {
                 p.precio,
                 p.imagen_url,
                 p.stock,
+
+                pe.id_editorial,
                 e.nombre_editorial AS editorial,
+
+                pg.id_genero,
                 g.nombre_genero AS genero,
+
                 c.emp_nombre AS creado_por,
                 m.emp_nombre AS modificado_por
             FROM Producto p
@@ -40,8 +45,13 @@ export const ProductModel = {
                 p.precio,
                 p.imagen_url,
                 p.stock,
+
+                pe.id_editorial,
                 e.nombre_editorial AS editorial,
+
+                pg.id_genero,
                 g.nombre_genero AS genero,
+
                 c.emp_nombre AS creado_por,
                 m.emp_nombre AS modificado_por
             FROM Producto p
