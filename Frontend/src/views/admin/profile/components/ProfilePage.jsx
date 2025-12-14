@@ -29,11 +29,17 @@ const ProfilePage = () => {
   const [editMode, setEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  // preview + valor final a guardar
+  const [pendingImage, setPendingImage] = useState(null);
+
   const fetchMe = async () => {
     setIsLoading(true);
     try {
       const res = await profileService.me(token);
       setData(res?.data || null);
+
+      // resetea preview cuando recargas
+      setPendingImage(null);
     } catch (e) {
       console.error(e);
       Swal.fire('Error', 'No se pudo cargar el perfil.', 'error');
@@ -47,15 +53,28 @@ const ProfilePage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const onPickImage = (base64) => {
+    setPendingImage(base64);
+  };
+
   const onSave = async (payload) => {
     setIsSaving(true);
     try {
-      // payload trae: { nombre, apellido, telefono } (si luego haces update user)
-      // y address: { direccion, ciudad, pais, codigo_postal }
-      await profileService.saveAddress(payload.address, token);
+      // 1) Actualizar datos personales (incluye email + username + image_profile)
+      await profileService.updateMe(
+        {
+          username: payload.username,
+          email: payload.email,
+          telefono: payload.telefono,
+          nombre: payload.nombre,
+          apellido: payload.apellido,
+          image_profile: payload.image_profile, // base64
+        },
+        token
+      );
 
-      // Si más adelante agregas endpoint para actualizar datos personales,
-      // acá lo llamas también.
+      // 2) Dirección
+      await profileService.saveAddress(payload.address, token);
 
       await fetchMe();
       Swal.fire('Éxito', 'Perfil actualizado.', 'success');
@@ -87,6 +106,12 @@ const ProfilePage = () => {
   const fullName = `${data.nombre || ''} ${data.apellido || ''}`.trim();
   const roleLabel = mapRoleLabel(data.role);
 
+  // ✅ backend: data.activity.productos_creados
+  const productsCreated = data?.activity?.productos_creados ?? 0;
+
+  // ✅ usa preview si existe, si no la del backend
+  const displayImage = pendingImage || data.image_profile || null;
+
   return (
     <div className="profile-page p-4">
       <div className="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-3">
@@ -110,16 +135,15 @@ const ProfilePage = () => {
             name={fullName || '—'}
             roleLabel={roleLabel}
             email={data.email || '—'}
-            image={data.image_profile}
+            image={displayImage}
             lastLogin={data.last_login}
             editMode={editMode}
+            isSaving={isSaving}
+            onPickImage={onPickImage}
           />
 
           <div className="mt-4">
-            <ProfileActivityCard
-              productsCreated={data?.stats?.productsCreated ?? 0}
-              lastLogin={data.last_login}
-            />
+            <ProfileActivityCard productsCreated={productsCreated} lastLogin={data.last_login} />
           </div>
         </div>
 
@@ -129,7 +153,11 @@ const ProfilePage = () => {
             roleLabel={roleLabel}
             editMode={editMode}
             isSaving={isSaving}
-            onCancel={() => setEditMode(false)}
+            pendingImage={pendingImage}
+            onCancel={() => {
+              setEditMode(false);
+              setPendingImage(null);
+            }}
             onSave={onSave}
           />
 

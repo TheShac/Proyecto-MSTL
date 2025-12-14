@@ -13,7 +13,9 @@ const ProfileActivityCard = ({ productsCreated, lastLogin }) => {
 
         <div className="d-flex justify-content-between py-2">
           <span className="text-muted">Última conexión</span>
-          <span className="fw-semibold">{lastLogin ? 'Hoy' : '—'}</span>
+          <span className="fw-semibold">
+            {lastLogin ? new Date(lastLogin).toLocaleString() : '—'}
+          </span>
         </div>
       </div>
     </div>

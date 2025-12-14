@@ -42,7 +42,7 @@ export const getMyEmployeeProfile = async (req, res) => {
         username: emp.emp_username,
         email: emp.emp_email,
         telefono: emp.emp_telefono,
-        role: emp.nombre_rol,          // stl_emp, etc (front lo mapea)
+        role: emp.nombre_rol,
         image_profile: emp.emp_image_profile,
         last_login: emp.last_login,
 
@@ -121,5 +121,46 @@ export const changeMyEmployeePassword = async (req, res) => {
   } catch (e) {
     console.error(e);
     return res.status(500).json({ success: false, message: "Error interno al cambiar contraseña." });
+  }
+};
+
+// PUT /api/profile/me
+export const updateMyEmployeeProfile = async (req, res) => {
+  if (!requireEmployee(req, res)) return;
+
+  try {
+    const uuid = req.user.id;
+
+    const { username, email, telefono, nombre, apellido, image_profile } = req.body;
+
+    // Validaciones mínimas (ajusta a tu gusto)
+    if (!username || !email || !nombre || !apellido) {
+      return res.status(400).json({ message: "username, email, nombre y apellido son obligatorios." });
+    }
+
+    const payload = {
+      username: String(username).trim(),
+      email: String(email).trim(),
+      telefono: telefono ? String(telefono).trim() : null,
+      nombre: String(nombre).trim(),
+      apellido: String(apellido).trim(),
+      image_profile: image_profile ? String(image_profile) : null, // base64 o url
+    };
+
+    const updatedRows = await EmployeeModel.updateProfile(uuid, payload);
+
+    if (updatedRows === 0) {
+      return res.status(404).json({ message: "Empleado no encontrado o sin cambios." });
+    }
+
+    return res.json({ success: true, message: "Perfil actualizado correctamente." });
+  } catch (e) {
+    console.error(e);
+
+    if (e.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({ message: "El email o username ya está en uso." });
+    }
+
+    return res.status(500).json({ success: false, message: "Error interno al actualizar perfil." });
   }
 };

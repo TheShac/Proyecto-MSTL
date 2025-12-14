@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 const initial = (data) => ({
   nombre: data?.nombre || '',
   apellido: data?.apellido || '',
+  username: data?.username || '',
   email: data?.email || '',
   telefono: data?.telefono || '',
   role: data?.role || '',
@@ -14,7 +15,15 @@ const initial = (data) => ({
   },
 });
 
-const ProfilePersonalForm = ({ data, roleLabel, editMode, isSaving, onCancel, onSave }) => {
+const ProfilePersonalForm = ({
+  data,
+  roleLabel,
+  editMode,
+  isSaving,
+  onCancel,
+  onSave,
+  pendingImage,
+}) => {
   const [form, setForm] = useState(() => initial(data));
   const [errors, setErrors] = useState({});
 
@@ -52,11 +61,20 @@ const ProfilePersonalForm = ({ data, roleLabel, editMode, isSaving, onCancel, on
     if (!form.nombre.trim()) next.nombre = 'Nombre es obligatorio.';
     if (!form.apellido.trim()) next.apellido = 'Apellido es obligatorio.';
 
+    if (!form.username.trim()) next.username = 'Username es obligatorio.';
+    else if (form.username.trim().length < 3) next.username = 'Username debe tener al menos 3 caracteres.';
+    else if (!/^[a-zA-Z0-9._-]+$/.test(form.username.trim()))
+      next.username = 'Username solo letras, números, punto, guión y guión bajo.';
+
+    if (!form.email.trim()) next.email = 'Email es obligatorio.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
+      next.email = 'Ingresa un email válido.';
+
     if (form.telefono?.trim() && !/^\+?\d[\d\s-]{6,14}$/.test(form.telefono.trim())) {
       next.telefono = 'Teléfono inválido.';
     }
 
-    // Dirección (obligatoria según tu pedido)
+    // Dirección obligatoria
     if (!form.address.direccion.trim()) next['address.direccion'] = 'Dirección es obligatoria.';
     if (!form.address.ciudad.trim()) next['address.ciudad'] = 'Ciudad es obligatoria.';
     if (!form.address.pais.trim()) next['address.pais'] = 'País es obligatorio.';
@@ -67,15 +85,19 @@ const ProfilePersonalForm = ({ data, roleLabel, editMode, isSaving, onCancel, on
 
   const submit = () => {
     if (!validate()) return;
+
     onSave({
+      username: form.username.trim(),
+      email: form.email.trim(),
       nombre: form.nombre.trim(),
       apellido: form.apellido.trim(),
-      telefono: form.telefono.trim(),
+      telefono: (form.telefono || '').trim(),
+      image_profile: pendingImage ?? data?.image_profile ?? null, // ✅ guarda la foto nueva si existe
       address: {
         direccion: form.address.direccion.trim(),
         ciudad: form.address.ciudad.trim(),
         pais: form.address.pais.trim(),
-        codigo_postal: form.address.codigo_postal.trim(),
+        codigo_postal: (form.address.codigo_postal || '').trim(),
       },
     });
   };
@@ -115,12 +137,34 @@ const ProfilePersonalForm = ({ data, roleLabel, editMode, isSaving, onCancel, on
             {errors.apellido && <div className="invalid-feedback">{errors.apellido}</div>}
           </div>
 
+          {/* ✅ editable */}
+          <div className="col-12 col-md-6">
+            <label className="form-label fw-semibold">
+              <i className="bi bi-at me-2" />
+              Username
+            </label>
+            <input
+              className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+              value={form.username}
+              onChange={setField('username')}
+              disabled={!editMode || isSaving}
+            />
+            {errors.username && <div className="invalid-feedback">{errors.username}</div>}
+          </div>
+
+          {/* ✅ editable */}
           <div className="col-12 col-md-6">
             <label className="form-label fw-semibold">
               <i className="bi bi-envelope me-2" />
               Correo electrónico
             </label>
-            <input className="form-control" value={form.email} disabled />
+            <input
+              className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+              value={form.email}
+              onChange={setField('email')}
+              disabled={!editMode || isSaving}
+            />
+            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
           </div>
 
           <div className="col-12 col-md-6">
@@ -152,9 +196,7 @@ const ProfilePersonalForm = ({ data, roleLabel, editMode, isSaving, onCancel, on
         <h6 className="mb-3">Dirección</h6>
         <div className="row g-3">
           <div className="col-12">
-            <label className="form-label fw-semibold">
-              Dirección
-            </label>
+            <label className="form-label fw-semibold">Dirección</label>
             <input
               className={`form-control ${errors['address.direccion'] ? 'is-invalid' : ''}`}
               value={form.address.direccion}

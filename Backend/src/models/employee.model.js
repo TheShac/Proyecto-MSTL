@@ -88,4 +88,24 @@ export const EmployeeModel = {
     );
     return result.affectedRows;
   },
+
+  // Actualizar SOLO perfil (sin tocar id_role)
+  updateProfile: async (id, userData) => {
+    const { username, email, telefono, nombre, apellido, image_profile } = userData;
+
+    const [result] = await pool.query(
+      `UPDATE UserEmps_STL SET
+        emp_username = ?,
+        emp_email = ?,
+        emp_telefono = ?,
+        emp_nombre = ?,
+        emp_apellido = ?,
+        emp_image_profile = ?
+      WHERE uuid_emps = ?`,
+      [username, email, telefono, nombre, apellido, image_profile, id]
+    );
+
+    return result.affectedRows;
+  },
+
 };

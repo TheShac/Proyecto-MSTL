@@ -115,14 +115,13 @@ export const ProductModel = {
         return result.affectedRows > 0;
     },
 
-    countCreatedBy: async (uuid_emp_create) => {
+    countCreatedBy: async (uuid_emps) => {
         const [rows] = await pool.query(
             `SELECT COUNT(*) AS total
             FROM Producto
             WHERE uuid_emp_create = ?`,
-            [uuid_emp_create]
+            [uuid_emps]
         );
-        return Number(rows?.[0]?.total ?? 0);
+        return rows[0]?.total ?? 0;
     },
-    
 };

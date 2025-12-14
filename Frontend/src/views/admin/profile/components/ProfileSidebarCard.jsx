@@ -1,6 +1,40 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
-const ProfileSidebarCard = ({ name, roleLabel, email, image, lastLogin, editMode }) => {
+const ProfileSidebarCard = ({
+  name,
+  roleLabel,
+  email,
+  image,
+  lastLogin,
+  editMode,
+  isSaving,
+  onPickImage,
+}) => {
+  const fileRef = useRef(null);
+
+  const openFilePicker = () => {
+    if (isSaving) return;
+    fileRef.current?.click();
+  };
+
+  const onFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validaciones simples
+    if (!file.type.startsWith('image/')) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result; // data:image/...;base64,...
+      onPickImage?.(base64);
+    };
+    reader.readAsDataURL(file);
+
+    // permite volver a elegir el mismo archivo
+    e.target.value = '';
+  };
+
   return (
     <div className="card shadow-sm border-0 rounded-4 profile-sidebar-card">
       <div className="card-body">
@@ -11,10 +45,24 @@ const ProfileSidebarCard = ({ name, roleLabel, email, image, lastLogin, editMode
             <div className="profile-avatar placeholder" />
           )}
 
+          {/* input oculto */}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={onFileChange}
+          />
+
           {editMode && (
-            <button className="btn btn-outline-secondary btn-sm mt-3" type="button" disabled>
+            <button
+              className="btn btn-outline-secondary btn-sm mt-3"
+              type="button"
+              onClick={openFilePicker}
+              disabled={isSaving}
+            >
               <i className="bi bi-upload me-2" />
-              Cambiar foto (pendiente)
+              Cambiar foto
             </button>
           )}
 
