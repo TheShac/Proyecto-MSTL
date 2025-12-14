@@ -1,20 +1,41 @@
-.employees-page {
-  width: 100%;
-}
-
+/* Página y card ocupan todo el ancho */
+.employees-page,
 .employees-card {
   width: 100%;
 }
 
-.employees-desc {
-  word-break: break-word;
-}
-
-.employees-actions .btn {
-  white-space: nowrap;
-}
-
-.employees-table {
-  table-layout: fixed;
+/* Wrapper con scroll horizontal */
+.employees-table-wrap {
   width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
+
+/* Tabla no se encoge */
+.employees-table {
+  width: 100%;
+  min-width: 950px; /* 👈 clave */
+  table-layout: fixed;
+}
+
+/* Evita que el contenido se aplaste */
+.employees-table th,
+.employees-table td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Acciones alineadas */
+.employees-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.employees-table th:nth-child(1) { width: 140px; } /* Nombre */
+.employees-table th:nth-child(2) { width: 140px; } /* Apellido */
+.employees-table th:nth-child(3) { width: 140px; } /* Usuario */
+.employees-table th:nth-child(4) { width: 220px; } /* Email */
+.employees-table th:nth-child(5) { width: 140px; } /* Teléfono */
+.employees-table th:nth-child(6) { width: 160px; } /* Rol */
+.employees-table th:nth-child(7) { width: 220px; } /* Acciones */

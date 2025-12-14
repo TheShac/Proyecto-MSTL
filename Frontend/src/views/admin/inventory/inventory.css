@@ -1,22 +1,22 @@
-/* Página de inventario */
 .inventory-page {
   width: 100%;
 }
 
-/* Card que contiene todo */
 .inventory-card {
   width: 100%;
-  max-width: 100%; /* ❗ QUITAMOS la limitación */
+  max-width: 100%;
 }
 
 /* Wrapper de tabla */
 .inventory-table-wrap {
   width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Tabla */
 .inventory-table {
+  min-width: 1100px;
   width: 100%;
   table-layout: fixed;
 }
@@ -38,4 +38,15 @@
 .inventory-table td {
   vertical-align: middle;
   white-space: nowrap;
+}
+
+.inventory-table th:nth-child(1) { width: 280px; } /* Producto */
+.inventory-table th:nth-child(2) { width: 140px; } /* Stock */
+.inventory-table th:nth-child(3) { width: 160px; } /* Precio unit */
+.inventory-table th:nth-child(4) { width: 160px; } /* Total */
+.inventory-table th:nth-child(5) { width: 140px; } /* Estado */
+.inventory-table th:nth-child(6) { width: 180px; } /* Acciones */
+
+.inventory-alert-title i {
+  font-size: 18px;
 }

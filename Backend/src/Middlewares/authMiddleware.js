@@ -1,18 +1,19 @@
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
 import { EmployeeModel } from '../models/employee.model.js';
 import { CustomerModel } from '../models/customer.model.js';
-import dotenv from 'dotenv';
+
 dotenv.config();
 
 export const protect = async (req, res, next) => {
   let token;
 
-  if ( req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Buscar el usuario según su tipo
       let user;
       if (decoded.userType === 'employee') {
         user = await EmployeeModel.findById(decoded.id);
@@ -32,14 +33,12 @@ export const protect = async (req, res, next) => {
         ...user,
       };
 
-      next();
+      return next();
     } catch (error) {
       console.error('Error de autenticación:', error);
-      res.status(401).json({ message: 'Token inválido o expirado' });
+      return res.status(401).json({ message: 'Token inválido o expirado' });
     }
   }
 
-  if (!token) {
-    res.status(401).json({ message: 'No se proporcionó token de autenticación' });
-  }
+  return res.status(401).json({ message: 'No se proporcionó token de autenticación' });
 };

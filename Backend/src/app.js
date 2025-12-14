@@ -3,10 +3,12 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+
 import userRoutes from './routes/user.routes.js';
 import productRoutes from './routes/product.routes.js';
 import employeeRouter from './routes/employee.routes.js'
 import catalogoRouter from './routes/catalogo.routes.js';
+import inventoryRoutes from './routes/products/inventory.routes.js';
 
 dotenv.config();
 
@@ -21,5 +23,6 @@ app.use('/api/auth', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/employees', employeeRouter);
 app.use('/api/catalogo', catalogoRouter);
+app.use('/api/inventory', inventoryRoutes);
 
 export default app;

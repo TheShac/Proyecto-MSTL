@@ -46,11 +46,10 @@ const AdjustStockModal = ({ show, product, onClose, onConfirm, isSaving }) => {
     if (type === 'ajuste') newStock = Number(qty);
 
     onConfirm({
-      productId: product.id_producto,
-      type,
-      quantity: Number(qty),
-      newStock,
-      reason: reason.trim(),
+      id_producto: product.id_producto,
+      tipo: type,
+      cantidad: Number(qty),
+      motivo: reason.trim(),
     });
   };
 
