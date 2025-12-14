@@ -1,0 +1,139 @@
+.orders-page,
+.orders-card,
+.orders-table-wrapper {
+  width: 100%;
+}
+
+/* Card contenedor principal */
+.orders-card {
+  border-radius: 16px;
+}
+
+/* Stats cards */
+.orders-stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+@media (max-width: 1200px) {
+  .orders-stats {
+    grid-template-columns: repeat(3, minmax(160px, 1fr));
+  }
+}
+@media (max-width: 768px) {
+  .orders-stats {
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+  }
+}
+
+.stat-card {
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 14px;
+  background: #fff;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.06);
+}
+
+.stat-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  margin-top: 10px;
+}
+
+.stat-sub {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 2px;
+}
+
+/* filtros */
+.orders-filters {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+@media (max-width: 768px) {
+  .orders-filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* tabla responsive horizontal */
+.orders-table-wrap {
+  overflow-x: auto;
+}
+
+/* si el ancho se achica, no colapsa todo encima */
+.orders-table {
+  min-width: 980px;
+  width: 100%;
+}
+
+/* pill estilo como tu inventario/productos */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid rgba(0,0,0,.06);
+}
+
+.pill-pendiente {
+  background: #fff3cd;
+  color: #664d03;
+}
+.pill-procesando {
+  background: #e7f1ff;
+  color: #0a58ca;
+}
+.pill-enviado {
+  background: #f3e8ff;
+  color: #6f42c1;
+}
+.pill-entregado {
+  background: #d1e7dd;
+  color: #0f5132;
+}
+.pill-cancelado {
+  background: #f8d7da;
+  color: #842029;
+}
+
+/* modal items */
+.order-item {
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.order-item-img {
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #f4f5f7;
+  border: 1px solid rgba(0,0,0,.06);
+}
+
+.order-section-title {
+  font-weight: 800;
+  margin: 14px 0 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}

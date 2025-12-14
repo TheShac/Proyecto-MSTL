@@ -15,7 +15,7 @@ import DashboardAdmin from '../views/admin/DashboardAdmin';
 import AdminProducts from '../views/admin/products/AdminProducts';
 import AdminEmployees from '../views/admin/employees/AdminEmployees';
 import AdminInventory from '../views/admin/inventory/AdminInventory';
-import AdminOrders from '../views/admin/AdminOrders';
+import AdminOrders from '../views/admin/orders/AdminOrders';
 import AdminAnaliticas from '../views/admin/AdminAnaliticas';
 import AdminClients from '../views/admin/AdminClients';
 import AdminConfiguration from '../views/admin/AdminConfiguration';
