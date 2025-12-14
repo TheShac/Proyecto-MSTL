@@ -1,0 +1,19 @@
+.profile-page { width: 100%; }
+
+.profile-avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #eee;
+}
+
+.profile-avatar.placeholder {
+  background: #e9ecef;
+}
+
+.profile-role {
+  padding: 6px 12px;
+}
+
+.profile-meta i { color: #6c757d; }

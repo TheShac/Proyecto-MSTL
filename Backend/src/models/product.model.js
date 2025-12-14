@@ -113,5 +113,16 @@ export const ProductModel = {
     delete: async (id) => {
         const [result] = await pool.query('DELETE FROM Producto WHERE id_producto = ?', [id]);
         return result.affectedRows > 0;
-    }
+    },
+
+    countCreatedBy: async (uuid_emp_create) => {
+        const [rows] = await pool.query(
+            `SELECT COUNT(*) AS total
+            FROM Producto
+            WHERE uuid_emp_create = ?`,
+            [uuid_emp_create]
+        );
+        return Number(rows?.[0]?.total ?? 0);
+    },
+    
 };

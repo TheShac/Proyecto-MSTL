@@ -37,8 +37,10 @@ export const Login = async (req, res) => {
       const token = jwt.sign(
         { id, username, role, userType },
         process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+        { expiresIn: process.env.JWT_EXPIRES_IN || '3h' }
       );
+
+      if(userType === 'employee') await EmployeeModel.updateLastLogin(id);
 
       res.json({ message: 'Login exitoso', token, userType, role, id, username });
     } catch (error) {

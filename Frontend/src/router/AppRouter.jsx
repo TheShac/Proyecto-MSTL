@@ -19,7 +19,7 @@ import AdminOrders from '../views/admin/AdminOrders';
 import AdminAnaliticas from '../views/admin/AdminAnaliticas';
 import AdminClients from '../views/admin/AdminClients';
 import AdminConfiguration from '../views/admin/AdminConfiguration';
-import AdminAProfile from '../views/admin/AdminProfile';
+import AdminAProfile from '../views/admin/profile/AdminProfile';
 
 // Auth
 import Login from '../views/shared/Login';

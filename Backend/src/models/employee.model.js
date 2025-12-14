@@ -80,4 +80,12 @@ export const EmployeeModel = {
     );
     return result.affectedRows;
   },
+
+  updateLastLogin: async (uuid_emps) => {
+    const [result] = await pool.query(
+      `UPDATE UserEmps_STL SET last_login = NOW() WHERE uuid_emps = ?`,
+      [uuid_emps]
+    );
+    return result.affectedRows;
+  },
 };
