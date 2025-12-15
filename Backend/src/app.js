@@ -10,6 +10,9 @@ import employeeRouter from './routes/employee.routes.js'
 import catalogoRouter from './routes/catalogo.routes.js';
 import inventoryRoutes from './routes/products/inventory.routes.js';
 import profileRoutes from "./routes/employee/profile.routes.js";
+import orderRoutes from './routes/orders/order.routes.js';
+import orderCustomerRoutes from './routes/orders/orders.customer.routes.js';
+import ordersGuestRoutes from "./routes/orders/orders.guest.routes.js";
 
 dotenv.config();
 
@@ -26,5 +29,8 @@ app.use('/api/employees', employeeRouter);
 app.use('/api/catalogo', catalogoRouter);
 app.use('/api/inventory', inventoryRoutes);
 app.use("/api/profile", profileRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/orders', orderCustomerRoutes);
+app.use("/api/orders", ordersGuestRoutes);
 
 export default app;
