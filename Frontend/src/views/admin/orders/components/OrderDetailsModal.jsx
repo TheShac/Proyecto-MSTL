@@ -1,135 +1,199 @@
-import React from "react";
-import { formatCLP, formatDateTime } from "../utils/formatters";
+import React, { useMemo } from "react";
+import { formatCLP } from "../utils/formatters";
 
-const estadoLabel = (estado) => {
-  const map = {
-    pendiente: "Pendiente",
-    procesando: "Procesando",
-    enviado: "Enviado",
-    entregado: "Entregado",
-    cancelado: "Cancelado",
-  };
-  return map[estado] || estado || "—";
-};
+const OrderDetailsModal = ({ show, loading, data, onClose }) => {
+  const order = data?.order || null;
+  const items = Array.isArray(data?.items) ? data.items : [];
+  const address = data?.address || null;
 
-const pillClass = (estado) => {
-  const map = {
-    pendiente: "pill pill-pendiente",
-    procesando: "pill pill-procesando",
-    enviado: "pill pill-enviado",
-    entregado: "pill pill-entregado",
-    cancelado: "pill pill-cancelado",
-  };
-  return map[estado] || "pill";
-};
+  const computed = useMemo(() => {
+    const subtotal = items.reduce((acc, it) => {
+      const qty = Number(it.cantidad ?? 0);
+      const pu = Number(it.precio_unitario ?? 0);
+      return acc + qty * pu;
+    }, 0);
 
-const OrderDetailsModal = ({ show, order, onClose }) => {
-  if (!show || !order) return null;
+    const shipping = Number(order?.costo_envio ?? 0);
+    const total = Number(order?.precio ?? subtotal + shipping);
 
-  const total = (order.items || []).reduce(
-    (acc, it) => acc + Number(it.precio_unitario || 0) * Number(it.cantidad || 0),
-    0
-  );
+    return { subtotal, shipping, total };
+  }, [items, order]);
 
-  const addr = order.envio || {};
+  if (!show) return null;
 
   return (
     <div className="modal fade show d-block" style={{ background: "rgba(0,0,0,.5)" }}>
-      <div className="modal-dialog modal-dialog-scrollable modal-dialog-centered" style={{ maxWidth: 520 }}>
+      <div className="modal-dialog modal-xl modal-dialog-centered">
         <div className="modal-content">
           <div className="modal-header">
             <div>
-              <h5 className="modal-title mb-1">Detalles del Pedido {order.id}</h5>
-              <div className="text-muted" style={{ fontSize: 12 }}>
-                Información completa del pedido y opciones de gestión
-              </div>
+              <h5 className="modal-title mb-0">Detalle del Pedido</h5>
+              <div className="text-muted small">{order?.uuid_pedido || "—"}</div>
             </div>
-            <button className="btn-close" onClick={onClose} />
+            <button className="btn-close" onClick={onClose} disabled={loading} />
           </div>
 
           <div className="modal-body">
-            <div className="d-flex justify-content-between align-items-start">
-              <div>
-                <div className="fw-bold" style={{ fontSize: 18 }}>{order.cliente?.nombre || "—"}</div>
-                <div className="text-muted">{order.cliente?.email || "—"}</div>
+            {loading ? (
+              <div className="py-5 text-center">
+                <div className="spinner-border text-warning" role="status" />
+                <div className="text-muted mt-2">Cargando detalle...</div>
               </div>
+            ) : !order ? (
+              <div className="text-muted">Sin datos.</div>
+            ) : (
+              <div className="row g-4">
+                <div className="col-12 col-lg-5">
+                  <div className="card border-0 shadow-sm rounded-4">
+                    <div className="card-body">
+                      <h6 className="mb-3">Información del pedido</h6>
 
-              <span className={pillClass(order.estado)}>
-                {estadoLabel(order.estado)}
-              </span>
-            </div>
+                      <div className="mb-2">
+                        <span className="text-muted">Estado: </span>
+                        <b>{order.estado}</b>
+                      </div>
 
-            <hr />
+                      <div className="mb-2">
+                        <span className="text-muted">Fecha: </span>
+                        <b>{order.fecha_pedido ? new Date(order.fecha_pedido).toLocaleString() : "—"}</b>
+                      </div>
 
-            <div className="order-section-title">
-              <i className="bi bi-box" />
-              Productos
-            </div>
+                      <hr />
 
-            <div className="d-flex flex-column gap-2">
-              {(order.items || []).map((it, idx) => {
-                const sub = Number(it.precio_unitario || 0) * Number(it.cantidad || 0);
-                return (
-                  <div className="order-item d-flex gap-12 align-items-center" key={idx}>
-                    <img className="order-item-img" src={it.imagen_url || ""} alt={it.nombre} />
-                    <div className="flex-grow-1">
-                      <div className="fw-semibold">{it.nombre}</div>
-                      <div className="text-muted" style={{ fontSize: 12 }}>
-                        Cantidad: {it.cantidad} × {formatCLP(it.precio_unitario)}
+                      <h6 className="mb-2">Cliente</h6>
+                      <div className="mb-1">
+                        <span className="text-muted">Nombre: </span>
+                        <b>{`${order.nombre_pedido || ""} ${order.apellido_pedido || ""}`.trim() || "—"}</b>
+                      </div>
+                      <div className="mb-1">
+                        <span className="text-muted">Email: </span>
+                        <b>{order.email_pedido || "—"}</b>
+                      </div>
+                      <div className="mb-1">
+                        <span className="text-muted">Teléfono: </span>
+                        <b>{order.telefono_pedido || "—"}</b>
+                      </div>
+
+                      <hr />
+
+                      <h6 className="mb-2">Entrega</h6>
+                      <div className="mb-2">
+                        <span className="text-muted">Método: </span>
+                        <b>
+                          {order.metodo_entrega
+                            ? order.metodo_entrega === "envio"
+                              ? "Envío"
+                              : "Retiro en tienda"
+                            : "—"}
+                        </b>
+                      </div>
+
+                      {order.metodo_entrega === "envio" ? (
+                        <div className="text-muted small">
+                          {address ? (
+                            <>
+                              <div><b>Dirección:</b> {address.direccion}</div>
+                              <div><b>Ciudad:</b> {address.ciudad}</div>
+                              <div><b>País:</b> {address.pais}</div>
+                              <div><b>Código postal:</b> {address.codigo_postal || "—"}</div>
+                            </>
+                          ) : (
+                            <div>Dirección no registrada.</div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-muted small">Retiro en tienda (sin dirección).</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12 col-lg-7">
+                  <div className="card border-0 shadow-sm rounded-4">
+                    <div className="card-body">
+                      <h6 className="mb-3">Productos</h6>
+
+                      <div className="table-responsive">
+                        <table className="table table-sm align-middle">
+                          <thead>
+                            <tr className="text-muted">
+                              <th className="text-start">Producto</th>
+                              <th>Cant.</th>
+                              <th>Precio</th>
+                              <th>Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {items.length === 0 ? (
+                              <tr>
+                                <td colSpan={4} className="text-muted py-3 text-center">
+                                  Sin productos.
+                                </td>
+                              </tr>
+                            ) : (
+                              items.map((it) => {
+                                const qty = Number(it.cantidad ?? 0);
+                                const pu = Number(it.precio_unitario ?? 0);
+                                const total = qty * pu;
+
+                                return (
+                                  <tr key={it.id_detalle_pedido}>
+                                    <td className="text-start">
+                                      <div className="d-flex align-items-center gap-2">
+                                        {it.imagen_url ? (
+                                          <img
+                                            src={it.imagen_url}
+                                            alt="img"
+                                            style={{ width: 44, height: 44, objectFit: "cover", borderRadius: 8 }}
+                                          />
+                                        ) : (
+                                          <div style={{ width: 44, height: 44, borderRadius: 8, background: "#eee" }} />
+                                        )}
+                                        <div className="fw-semibold">{it.nombre || "—"}</div>
+                                      </div>
+                                    </td>
+                                    <td>{qty}</td>
+                                    <td>{formatCLP(pu)}</td>
+                                    <td className="fw-semibold">{formatCLP(total)}</td>
+                                  </tr>
+                                );
+                              })
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <hr />
+
+                      <div className="d-flex justify-content-end">
+                        <div style={{ width: 280 }}>
+                          <div className="d-flex justify-content-between py-1">
+                            <span className="text-muted">Subtotal</span>
+                            <span className="fw-semibold">{formatCLP(computed.subtotal)}</span>
+                          </div>
+                          <div className="d-flex justify-content-between py-1">
+                            <span className="text-muted">Envío</span>
+                            <span className="fw-semibold">{formatCLP(computed.shipping)}</span>
+                          </div>
+                          <div className="d-flex justify-content-between py-2 border-top mt-2">
+                            <span className="fw-bold">Total</span>
+                            <span className="fw-bold">{formatCLP(computed.total)}</span>
+                          </div>
+
+                          <div className="text-muted small mt-2">
+                            Usuario que procesó: <b>(por implementar)</b>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="fw-bold">{formatCLP(sub)}</div>
                   </div>
-                );
-              })}
-            </div>
-
-            <hr />
-            <div className="d-flex justify-content-between align-items-center">
-              <div className="fw-bold">Total</div>
-              <div className="fw-bold" style={{ fontSize: 22 }}>{formatCLP(total)}</div>
-            </div>
-
-            <hr />
-            <div className="order-section-title">
-              <i className="bi bi-geo-alt" />
-              Dirección de Envío
-            </div>
-
-            <div className="order-item">
-              <div>{addr.direccion || "—"}</div>
-              <div>{addr.ciudad || "—"}</div>
-              <div>{addr.codigo_postal || "—"}, {addr.pais || "—"}</div>
-            </div>
-
-            <div className="order-section-title mt-3">
-              <i className="bi bi-credit-card" />
-              Método de Pago
-            </div>
-
-            <div className="order-item">
-              {order.pago?.metodo || "Por implementar"}
-            </div>
-
-            <div className="order-section-title mt-3">
-              <i className="bi bi-calendar3" />
-              Fechas
-            </div>
-
-            <div className="order-item">
-              <div className="d-flex justify-content-between">
-                <span className="text-muted">Creado:</span>
-                <span>{formatDateTime(order.creado)}</span>
+                </div>
               </div>
-              <div className="d-flex justify-content-between mt-1">
-                <span className="text-muted">Última actualización:</span>
-                <span>{formatDateTime(order.actualizado)}</span>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="modal-footer">
-            <button className="btn btn-outline-secondary" onClick={onClose}>
+            <button className="btn btn-outline-secondary" onClick={onClose} disabled={loading}>
               Cerrar
             </button>
           </div>

@@ -8,28 +8,35 @@ import OrderDetailsModal from "./OrderDetailsModal";
 
 import { ordersService } from "../services/orders.service";
 
-const norm = (s) =>
-  String(s || "")
+const normalizeText = (s) =>
+  (s || "")
+    .toString()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .trim();
 
 const AdminOrdersPage = () => {
-  const [orders, setOrders] = useState([]);
+  const token = useMemo(
+    () => localStorage.getItem("accessToken") || localStorage.getItem("token") || "",
+    []
+  );
+
   const [isLoading, setIsLoading] = useState(false);
+  const [orders, setOrders] = useState([]);
 
-  const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
+  const [query, setQuery] = useState("");
 
-  const [showModal, setShowModal] = useState(false);
-  const [selected, setSelected] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [selected, setSelected] = useState(null); // { order, items, address }
 
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
-      const res = await ordersService.list();
-      const list = Array.isArray(res) ? res : (res?.data || []);
+      const res = await ordersService.list(token);
+      const list = Array.isArray(res?.data) ? res.data : [];
       setOrders(list);
     } catch (e) {
       console.error(e);
@@ -41,89 +48,103 @@ const AdminOrdersPage = () => {
 
   useEffect(() => {
     fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const stats = useMemo(() => {
-    const base = {
-      total: orders.length,
-      pendiente: 0,
-      procesando: 0,
-      enviado: 0,
-      entregado: 0,
-      cancelado: 0,
-    };
-    for (const o of orders) {
-      if (base[o.estado] !== undefined) base[o.estado] += 1;
-    }
-    return base;
+    const total = orders.length;
+    const pendientes = orders.filter((o) => o.estado === "pendiente").length;
+    const pagados = orders.filter((o) => o.estado === "pagado").length;
+    const enviados = orders.filter((o) => o.estado === "enviado").length;
+    const entregados = orders.filter((o) => o.estado === "entregado").length;
+
+    return { total, pendientes, pagados, enviados, entregados };
   }, [orders]);
 
-  const filtered = useMemo(() => {
-    let list = orders;
+  const filteredOrders = useMemo(() => {
+    const q = normalizeText(query);
+    return orders.filter((o) => {
+      if (status !== "all" && o.estado !== status) return false;
 
-    if (status !== "all") {
-      list = list.filter((o) => o.estado === status);
-    }
+      if (!q) return true;
 
-    const q = norm(query);
-    if (!q) return list;
-
-    return list.filter((o) => {
-      const hay = norm(`${o.id} ${o.cliente?.nombre} ${o.cliente?.email}`);
+      const hay = normalizeText(
+        `${o.uuid_pedido} ${o.nombre_pedido} ${o.apellido_pedido} ${o.email_pedido} ${o.estado}`
+      );
       return hay.includes(q);
     });
-  }, [orders, query, status]);
+  }, [orders, status, query]);
 
-  const onView = (order) => {
-    setSelected(order);
-    setShowModal(true);
+  const openDetails = async (uuid_pedido) => {
+    setDetailsLoading(true);
+    setShowDetails(true);
+    try {
+      const res = await ordersService.getById(uuid_pedido, token);
+      setSelected(res?.data || null);
+    } catch (e) {
+      console.error(e);
+      Swal.fire("Error", "No se pudo cargar el detalle del pedido.", "error");
+      setShowDetails(false);
+      setSelected(null);
+    } finally {
+      setDetailsLoading(false);
+    }
   };
 
-  const onCloseModal = () => {
-    setShowModal(false);
+  const closeDetails = () => {
+    if (detailsLoading) return;
+    setShowDetails(false);
     setSelected(null);
   };
 
-  const onChangeStatus = async (order, nextStatus) => {
-    // En la UI de la imagen se permite cambiar; acá lo dejamos listo.
+  const changeStatus = async (uuid_pedido, estado) => {
     try {
-      await ordersService.updateStatus({ id: order.id, estado: nextStatus });
+      await ordersService.updateStatus(uuid_pedido, estado, token);
+      Swal.fire("Éxito", "Estado actualizado.", "success");
       await fetchOrders();
-      Swal.fire("Éxito", "Estado actualizado (mock). Cuando tengas backend real, lo conectamos.", "success");
+
+      // si el modal está abierto y corresponde al mismo pedido, refrescamos detalle
+      if (selected?.order?.uuid_pedido === uuid_pedido) {
+        const res = await ordersService.getById(uuid_pedido, token);
+        setSelected(res?.data || null);
+      }
     } catch (e) {
       console.error(e);
-      Swal.fire("Error", "No se pudo actualizar el estado.", "error");
+      const msg = e?.response?.data?.message || "No se pudo actualizar el estado.";
+      Swal.fire("Error", msg, "error");
     }
   };
 
   return (
     <div className="orders-page p-4">
-      <div className="mb-3">
-        <h2 className="mb-1">Gestión de Pedidos</h2>
-        <p className="text-muted mb-0">Administra y monitorea todos los pedidos de la tienda</p>
+      <div className="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-3">
+        <div>
+          <h2 className="mb-1">Gestión de Pedidos</h2>
+          <p className="text-muted mb-0">Listado y administración de pedidos</p>
+        </div>
       </div>
 
       <OrdersStatsCards stats={stats} />
 
-      <div className="orders-card card shadow-sm border-0 rounded-4">
+      <div className="card shadow-sm border-0 rounded-4 mt-4">
         <div className="card-body">
-          <OrdersFiltersBar
-            query={query}
-            onQueryChange={setQuery}
-            status={status}
-            onStatusChange={setStatus}
-          />
+          <OrdersFiltersBar status={status} onStatus={setStatus} query={query} onQuery={setQuery} />
 
           <OrdersTable
-            orders={filtered}
+            orders={filteredOrders}
             isLoading={isLoading}
-            onView={onView}
-            onChangeStatus={onChangeStatus}
+            onView={(o) => openDetails(o.uuid_pedido)}
+            onChangeStatus={(o, nextStatus) => changeStatus(o.uuid_pedido, nextStatus)}
           />
         </div>
       </div>
 
-      <OrderDetailsModal show={showModal} order={selected} onClose={onCloseModal} />
+      <OrderDetailsModal
+        show={showDetails}
+        loading={detailsLoading}
+        data={selected} // { order, items, address }
+        onClose={closeDetails}
+      />
     </div>
   );
 };

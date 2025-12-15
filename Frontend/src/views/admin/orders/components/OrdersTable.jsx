@@ -1,49 +1,40 @@
 import React from "react";
-import { formatCLP, formatDate } from "../utils/formatters";
+import { formatCLP } from "../utils/formatters";
 
-const pillClass = (estado) => {
+const statusPill = (estado) => {
   const map = {
-    pendiente: "pill pill-pendiente",
-    procesando: "pill pill-procesando",
-    enviado: "pill pill-enviado",
-    entregado: "pill pill-entregado",
-    cancelado: "pill pill-cancelado",
+    pendiente: "pill pill-warning",
+    pagado: "pill pill-dark",
+    enviado: "pill pill-info",
+    entregado: "pill pill-success",
+    cancelado: "pill pill-danger",
+    carrito: "pill pill-light",
   };
-  return map[estado] || "pill";
+  return map[estado] || "pill pill-light";
 };
 
-const estadoLabel = (estado) => {
-  const map = {
-    pendiente: "Pendiente",
-    procesando: "Procesando",
-    enviado: "Enviado",
-    entregado: "Entregado",
-    cancelado: "Cancelado",
-  };
-  return map[estado] || estado || "—";
-};
-
-const OrdersTable = ({ orders, onView, onChangeStatus, isLoading }) => {
+const OrdersTable = ({ orders, isLoading, onView, onChangeStatus }) => {
   return (
-    <div className="orders-table-wrap">
+    <div className="table-responsive orders-table-wrap">
       <table className="table table-hover align-middle text-center orders-table">
         <thead className="table-warning">
           <tr>
-            <th className="text-start">ID Pedido</th>
-            <th className="text-start">Cliente</th>
+            <th>ID</th>
             <th>Fecha</th>
+            <th className="text-start">Cliente</th>
+            <th className="text-start">Email</th>
+            <th>Método</th>
             <th>Items</th>
             <th>Total</th>
             <th>Estado</th>
-            <th>Acciones</th>
-            <th style={{ width: 200 }}></th>
+            <th style={{ width: 220 }}>Acciones</th>
           </tr>
         </thead>
 
         <tbody>
           {isLoading ? (
             <tr>
-              <td colSpan={8} className="py-5">
+              <td colSpan={9} className="py-5">
                 <div className="d-flex flex-column align-items-center gap-2">
                   <div className="spinner-border text-warning" role="status" />
                   <div className="text-muted">Cargando pedidos...</div>
@@ -52,56 +43,50 @@ const OrdersTable = ({ orders, onView, onChangeStatus, isLoading }) => {
             </tr>
           ) : orders.length === 0 ? (
             <tr>
-              <td colSpan={8} className="text-muted py-4">
+              <td colSpan={9} className="text-muted py-4">
                 No hay pedidos para mostrar.
               </td>
             </tr>
           ) : (
             orders.map((o) => {
-              const itemsCount = (o.items || []).reduce((acc, it) => acc + Number(it.cantidad || 0), 0);
-              const total = (o.items || []).reduce((acc, it) => acc + Number(it.precio_unitario || 0) * Number(it.cantidad || 0), 0);
+              const cliente = `${o.nombre_pedido || ""} ${o.apellido_pedido || ""}`.trim() || "—";
+              const fecha = o.fecha_pedido ? new Date(o.fecha_pedido).toLocaleString() : "—";
 
               return (
-                <tr key={o.id}>
-                  <td className="text-start fw-semibold">{o.id}</td>
+                <tr key={o.uuid_pedido}>
+                  <td className="fw-semibold">{o.uuid_pedido}</td>
+                  <td>{fecha}</td>
+                  <td className="text-start">{cliente}</td>
+                  <td className="text-start">{o.email_pedido || "—"}</td>
+                  <td>{o.metodo_entrega ? (o.metodo_entrega === "envio" ? "Envío" : "Retiro") : "—"}</td>
+                  <td>{o.items_count ?? 0}</td>
+                  <td className="fw-semibold">{formatCLP(o.precio ?? 0)}</td>
 
-                  <td className="text-start">
-                    <div className="fw-semibold">{o.cliente?.nombre || "—"}</div>
-                    <div className="text-muted" style={{ fontSize: 12 }}>
-                      {o.cliente?.email || "—"}
+                  <td>
+                    <span className={statusPill(o.estado)}>{o.estado}</span>
+                  </td>
+
+                  <td>
+                    <div className="d-flex justify-content-center gap-2 flex-wrap">
+                      <button className="btn btn-sm btn-outline-dark" onClick={() => onView(o)}>
+                        Observar
+                      </button>
+
+                      <select
+                        className="form-select form-select-sm"
+                        style={{ width: 140 }}
+                        value={o.estado}
+                        onChange={(e) => onChangeStatus(o, e.target.value)}
+                        disabled={o.estado === "carrito"}
+                        title={o.estado === "carrito" ? "Carrito aún no confirmado" : ""}
+                      >
+                        <option value="pendiente">Pendiente</option>
+                        <option value="pagado">Pagado</option>
+                        <option value="enviado">Enviado</option>
+                        <option value="entregado">Entregado</option>
+                        <option value="cancelado">Cancelado</option>
+                      </select>
                     </div>
-                  </td>
-
-                  <td>{formatDate(o.fecha)}</td>
-                  <td>{itemsCount}</td>
-                  <td className="fw-semibold">{formatCLP(total)}</td>
-
-                  <td>
-                    <span className={pillClass(o.estado)}>
-                      <i className="bi bi-circle-fill" style={{ fontSize: 8 }} />
-                      {estadoLabel(o.estado)}
-                    </span>
-                  </td>
-
-                  <td>
-                    <button className="btn btn-sm btn-outline-dark" onClick={() => onView(o)}>
-                      <i className="bi bi-eye" />
-                    </button>
-                  </td>
-
-                  <td>
-                    <select
-                      className="form-select form-select-sm"
-                      value={o.estado}
-                      onChange={(e) => onChangeStatus(o, e.target.value)}
-                    >
-                      <option value="_toggle" disabled>—</option>
-                      <option value="pendiente">Pendiente</option>
-                      <option value="procesando">Procesando</option>
-                      <option value="enviado">Enviado</option>
-                      <option value="entregado">Entregado</option>
-                      <option value="cancelado">Cancelado</option>
-                    </select>
                   </td>
                 </tr>
               );
