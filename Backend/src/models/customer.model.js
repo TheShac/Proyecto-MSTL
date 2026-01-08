@@ -68,4 +68,36 @@ export const CustomerModel = {
     return result.affectedRows;
   },
 
+  // Buscar usuario por google_id
+  findByGoogleId: async (googleId) => {
+    const [rows] = await pool.query(
+      `SELECT * FROM UserCustomer WHERE google_id = ?`,
+      [googleId]
+    );
+    return rows[0];
+  },
+
+  // Crear usuario customer usando Google
+  createGoogleUser: async (userData) => {
+    const { username, email, nombre, apellido, image_profile, google_id } = userData;
+
+    const [result] = await pool.query(
+      `INSERT INTO UserCustomer 
+      (stl_username, stl_email, stl_password, stl_nombre, stl_apellido, stl_image_profile, google_id)
+      VALUES (?, ?, NULL, ?, ?, ?, ?)`,
+      [username, email, nombre, apellido, image_profile, google_id]
+    );
+
+    return result.insertId;
+  },
+
+  // Vincular google_id a usuario existente
+  setGoogleId: async (uuid_customer, google_id) => {
+    const [result] = await pool.query(
+      `UPDATE UserCustomer SET google_id = ? WHERE uuid_customer = ?`,
+      [google_id, uuid_customer]
+    );
+    return result.affectedRows;
+  },
+
 };

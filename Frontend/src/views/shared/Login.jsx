@@ -24,11 +24,8 @@ const Login = () => {
         password,
       });
 
-      console.log('Respuesta del servidor:', response.data);
-
       const { token, role, userType, id, username } = response.data;
 
-      // Guardar en AuthContext (mapeando token -> accessToken)
       auth.login({
         accessToken: token,
         role,
@@ -37,7 +34,6 @@ const Login = () => {
         username,
       });
 
-      // Guardar también en localStorage (si quieres mantenerlo igual que en Vue)
       localStorage.setItem('accessToken', token);
       localStorage.setItem('role', role);
       localStorage.setItem('userType', userType);
@@ -49,6 +45,7 @@ const Login = () => {
           'stl_superadministrador',
           'stl_emp',
         ];
+
         if (adminRoles.includes(role)) {
           navigate('/admin/dashboard', { replace: true });
         } else {
@@ -57,9 +54,9 @@ const Login = () => {
       } else {
         navigate('/', { replace: true });
       }
+
     } catch (err) {
       console.error('Error de inicio de sesión:', err);
-      console.error('Detalle de error:', err.response?.data);
       setError(
         err.response?.data?.message ||
           err.message ||
@@ -68,6 +65,11 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // ✅ Google Login: redirige al backend
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:3000/api/auth/google';
   };
 
   return (
@@ -128,6 +130,16 @@ const Login = () => {
             {isLoading ? 'Iniciando...' : 'Entrar'}
           </button>
         </form>
+
+        {/* ✅ BOTÓN GOOGLE */}
+        <button
+          type="button"
+          className="btn btn-outline-dark w-100 fw-bold py-2 mt-3"
+          onClick={handleGoogleLogin}
+        >
+          <i className="bi bi-google me-2"></i>
+          Continuar con Google
+        </button>
 
         <div className="mt-4 text-center small">
           <p className="text-muted">

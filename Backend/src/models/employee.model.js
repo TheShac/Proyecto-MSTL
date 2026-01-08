@@ -108,4 +108,24 @@ export const EmployeeModel = {
     return result.affectedRows;
   },
 
+  // Buscar empleado por google_id
+  findByGoogleId: async (googleId) => {
+    const [rows] = await pool.query(
+      `SELECT e.*, r.nombre_rol FROM UserEmps_STL e
+      LEFT JOIN Role r ON e.id_role = r.id_role
+      WHERE e.google_id = ?`,
+      [googleId]
+    );
+    return rows[0];
+  },
+
+  // Vincular google_id a empleado existente
+  setGoogleId: async (uuid_emps, google_id) => {
+    const [result] = await pool.query(
+      `UPDATE UserEmps_STL SET google_id = ? WHERE uuid_emps = ?`,
+      [google_id, uuid_emps]
+    );
+    return result.affectedRows;
+  },
+
 };

@@ -1,4 +1,3 @@
-// src/router/AppRouter.jsx
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
@@ -24,13 +23,14 @@ import AdminAProfile from '../views/admin/profile/AdminProfile';
 // Auth
 import Login from '../views/shared/Login';
 import Register from '../views/shared/Register';
+import GoogleSuccess from '../views/shared/GoogleSuccess';
 
 // Contexto de autenticación
 import { useAuth } from '../stores/AuthContext';
 
 const PrivateRoute = ({ children }) => {
   const auth = useAuth();
-  return auth.isLoggedIn ? children : <Navigate to="/login" replace />;
+  return auth.isLoggedIn ? children : <Navigate to="/" replace />;
 };
 
 const AdminRoute = ({ children }) => {
@@ -51,8 +51,12 @@ const AppRouter = () => {
           </>
         }
       />
+
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+
+      {/* ✅ CALLBACK GOOGLE */}
+      <Route path="/auth/google/success" element={<GoogleSuccess />} />
 
       {/* RUTA PRIVADA DEL CLIENTE */}
       <Route

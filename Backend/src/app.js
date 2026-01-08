@@ -4,7 +4,12 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 
+import passport from 'passport';
+
 import userRoutes from './routes/user.routes.js';
+import authRoutes from './routes/auth.routes.js';
+import './config/passport.js';
+
 import productRoutes from './routes/product.routes.js';
 import employeeRouter from './routes/employee.routes.js'
 import catalogoRouter from './routes/catalogo.routes.js';
@@ -22,8 +27,11 @@ app.use(express.json({ limit: '10mb' }));
 app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
+app.use(passport.initialize());
 
 app.use('/api/auth', userRoutes);
+app.use('/api/auth', authRoutes);
+
 app.use('/api/products', productRoutes);
 app.use('/api/employees', employeeRouter);
 app.use('/api/catalogo', catalogoRouter);

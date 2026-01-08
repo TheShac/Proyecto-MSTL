@@ -1,4 +1,3 @@
-// src/layouts/AdminLayout.jsx
 import React, { useEffect, useState } from 'react';
 import { NavLink, Link, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../stores/AuthContext';
@@ -15,8 +14,6 @@ const AdminLayout = () => {
 
   const logout = () => {
     auth.logout();
-    // En Vue: router.push({ name: 'Dashboard' })
-    // Aquí asumo que el dashboard público está en "/"
     navigate('/', { replace: true });
   };
 
