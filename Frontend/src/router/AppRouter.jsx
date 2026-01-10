@@ -49,9 +49,10 @@ const AppRouter = () => {
         <Route path="/catalogo" element={<CustomerCatalog />} />
         <Route path="/catalogo/:id" element={<ProductDetail />} />
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Route>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      
 
       {/* ✅ CALLBACK GOOGLE */}
       <Route path="/auth/google/success" element={<GoogleSuccess />} />

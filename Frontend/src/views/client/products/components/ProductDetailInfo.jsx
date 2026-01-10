@@ -22,14 +22,13 @@ const ProductDetailInfo = ({ product, isUnavailable }) => {
       </div>
 
       <h6 className="text-uppercase fw-bold mt-4">Descripción</h6>
-      <p className="text-muted" style={{ lineHeight: "1.6" }}>
+      <p className="text-muted" style={{ lineHeight: "1.8", textAlign: "justify", textJustify: "inter-word", }}>
         {product.descripcion || "Sin descripción disponible."}
       </p>
 
       {isUnavailable && (
         <div className="alert alert-danger fw-semibold mt-4">
-          ESTE PRODUCTO NO SE ENCUENTRA EN STOCK. LLEGADA ESTIMADA DE 2 A 3
-          SEMANAS.
+          ESTE PRODUCTO NO SE ENCUENTRA EN STOCK. PRONTO LO ACTUALIZAREMOS.
         </div>
       )}
     </>

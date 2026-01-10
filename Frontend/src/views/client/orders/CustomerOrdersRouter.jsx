@@ -4,7 +4,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import OrderSuccessPage from "./pages/OrderSuccessPage";
 
 const CustomerOrdersRouter = () => {
-  const [step, setStep] = useState("cart"); // cart | checkout | success
+  const [step, setStep] = useState("cart");
   const [result, setResult] = useState(null);
 
   if (step === "checkout") {

@@ -9,7 +9,7 @@ export const googleCallback = async (req, res) => {
   try {
     const { email, googleId, name, lastName, photo } = req.user;
 
-    // 1) Buscar por google_id primero
+    // Buscar por google_id primero
     let user = await CustomerModel.findByGoogleId(googleId);
     let userType = "customer";
 
@@ -18,7 +18,7 @@ export const googleCallback = async (req, res) => {
       userType = "employee";
     }
 
-    // 2) Si no se encontró por google_id, buscar por email
+    // Si no se encontró por google_id, buscar por email
     if (!user) {
       user = await CustomerModel.findByEmailOrUsername(email);
       userType = "customer";
@@ -29,7 +29,7 @@ export const googleCallback = async (req, res) => {
       }
     }
 
-    // 3) Si existe usuario, vincular google_id si no lo tiene
+    // Si existe usuario, vincular google_id si no lo tiene
     if (user) {
       if (userType === "customer" && !user.google_id) {
         await CustomerModel.setGoogleId(user.uuid_customer, googleId);
@@ -42,7 +42,7 @@ export const googleCallback = async (req, res) => {
       }
     }
 
-    // 4) Si NO existe en ninguno => crear CUSTOMER automáticamente
+    // Si NO existe en ninguno => crear CUSTOMER automáticamente
     if (!user) {
       const username = email.split("@")[0];
 
@@ -59,7 +59,7 @@ export const googleCallback = async (req, res) => {
       userType = "customer";
     }
 
-    // 5) Generar tu JWT igual que Login normal
+    // Generar JWT igual que Login normal
     const id = userType === "employee" ? user.uuid_emps : user.uuid_customer;
     const username = userType === "employee" ? user.emp_username : user.stl_username;
     const role = userType === "employee" ? user.nombre_rol : "customer";
@@ -70,7 +70,7 @@ export const googleCallback = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || "3h" }
     );
 
-    // 6) Redirigir al frontend con token
+    // Redirigir al frontend con token
     return res.redirect(`${process.env.FRONTEND_URL}/auth/google/success?token=${token}`);
 
   } catch (error) {

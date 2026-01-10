@@ -14,15 +14,18 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="card h-100 shadow-sm border-0 position-relative">
-      <img
-        src={imageSrc}
-        className="card-img-top"
-        alt={product.nombre}
-        style={{ height: "300px", objectFit: "cover" }}
-        onError={(e) => {
-          e.target.src = placeholderImg;
-        }}
-      />
+
+      <Link to={`/catalogo/${product.id_producto}`} className="text-decoration-none">
+        <img
+          src={imageSrc}
+          className="card-img-top"
+          alt={product.nombre}
+          style={{ height: "300px", objectFit: "cover", cursor: "pointer" }}
+          onError={(e) => {
+            e.target.src = placeholderImg;
+          }}
+        />
+      </Link>
 
       {isUnavailable && (
         <div
@@ -41,7 +44,17 @@ const ProductCard = ({ product }) => {
       <div className="card-body">
         <p className="text-muted small mb-1">{product.editorial}</p>
 
-        <h6 className="fw-semibold text-truncate">{product.nombre}</h6>
+        <Link
+          to={`/catalogo/${product.id_producto}`}
+          className="text-decoration-none text-dark"
+        >
+          <h6
+            className="fw-semibold text-truncate mb-2"
+            style={{ cursor: "pointer" }}
+          >
+            {product.nombre}
+          </h6>
+        </Link>
 
         <p className="fw-bold mt-2">{formatPrice(product.precio)}</p>
 
