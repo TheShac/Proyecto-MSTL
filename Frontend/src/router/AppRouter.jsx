@@ -4,10 +4,13 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 // Layouts
 import Navbar from '../components/Navbar';
 import AdminLayout from '../layouts/AdminLayout';
+import ClientLayout from "../layouts/ClientLayout";
 
 // Vistas Cliente
 import Dashboard from '../views/client/Dashboard';
 import Profile from '../views/client/Profile';
+import CustomerCatalog from "../views/client/catalogo/CustomerCatalog";
+import ProductDetail from "../views/client/products/ProductDetail";
 
 // Vistas Admin
 import DashboardAdmin from '../views/admin/DashboardAdmin';
@@ -41,35 +44,17 @@ const AdminRoute = ({ children }) => {
 const AppRouter = () => {
   return (
     <Routes>
-      {/* RUTAS PÚBLICAS */}
-      <Route
-        path="/"
-        element={
-          <>
-            <Navbar />
-            <Dashboard />
-          </>
-        }
-      />
-
+      <Route element={<ClientLayout />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/catalogo" element={<CustomerCatalog />} />
+        <Route path="/catalogo/:id" element={<ProductDetail />} />
+        <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+      </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
       {/* ✅ CALLBACK GOOGLE */}
       <Route path="/auth/google/success" element={<GoogleSuccess />} />
-
-      {/* RUTA PRIVADA DEL CLIENTE */}
-      <Route
-        path="/profile"
-        element={
-          <PrivateRoute>
-            <>
-              <Navbar />
-              <Profile />
-            </>
-          </PrivateRoute>
-        }
-      />
 
       {/* RUTAS ADMIN (PRIVADAS + ADMIN) */}
       <Route

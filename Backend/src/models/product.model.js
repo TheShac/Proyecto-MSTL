@@ -124,4 +124,76 @@ export const ProductModel = {
         );
         return rows[0]?.total ?? 0;
     },
+
+    // CATÁLOGO DE PRODUCTOS CON FILTROS, BÚSQUEDA Y PAGINACIÓN
+    catalog: async ({ page, limit, search, editorial, minPrice, maxPrice, sort }) => {
+        const offset = (page - 1) * limit;
+
+        let whereClauses = [];
+        let params = [];
+
+        if (search) {
+            whereClauses.push(`(p.nombre LIKE ? OR e.nombre_editorial LIKE ?)`);
+            params.push(`%${search}%`, `%${search}%`);
+        }
+
+        if (editorial) {
+            whereClauses.push(`e.nombre_editorial = ?`);
+            params.push(editorial);
+        }
+
+        if (minPrice) {
+            whereClauses.push(`p.precio >= ?`);
+            params.push(minPrice);
+        }
+
+        if (maxPrice) {
+            whereClauses.push(`p.precio <= ?`);
+            params.push(maxPrice);
+        }
+
+        const whereSQL = whereClauses.length ? `WHERE ${whereClauses.join(" AND ")}` : "";
+
+        // Ordenamiento
+        let orderSQL = "ORDER BY p.id_producto DESC"; // newest default
+        if (sort === "az") orderSQL = "ORDER BY p.nombre ASC";
+        if (sort === "za") orderSQL = "ORDER BY p.nombre DESC";
+        if (sort === "priceAsc") orderSQL = "ORDER BY p.precio ASC";
+        if (sort === "priceDesc") orderSQL = "ORDER BY p.precio DESC";
+
+        // Query principal
+        const [rows] = await pool.query(
+            `
+            SELECT 
+            p.id_producto,
+            p.nombre,
+            p.estado,
+            p.descripcion,
+            p.precio,
+            p.imagen_url,
+            p.stock,
+            e.nombre_editorial AS editorial
+            FROM Producto p
+            LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto
+            LEFT JOIN Editorial e ON pe.id_editorial = e.id_editorial
+            ${whereSQL}
+            ${orderSQL}
+            LIMIT ? OFFSET ?
+            `,
+            [...params, Number(limit), Number(offset)]
+        );
+
+        // Query para total (paginación)
+        const [countResult] = await pool.query(
+            `
+            SELECT COUNT(DISTINCT p.id_producto) AS total
+            FROM Producto p
+            LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto
+            LEFT JOIN Editorial e ON pe.id_editorial = e.id_editorial
+            ${whereSQL}
+            `,
+            params
+        );
+        return { products: rows, total: countResult[0].total };
+    },
 };

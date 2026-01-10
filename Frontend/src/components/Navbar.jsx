@@ -15,7 +15,7 @@ const Navbar = () => {
 
   // ✅ modal
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [mode, setMode] = useState('login'); // login | register
+  const [mode, setMode] = useState('login');
 
   const dropdownRef = useRef(null);
 
@@ -51,10 +51,15 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm px-4">
+      <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm px-4 py-2">
         <div className="container-fluid">
-          <Link to="/" className="navbar-brand fw-bold text-dark">
-            Don Mangas
+          <Link to="/" className="navbar-brand fw-bold text-dark d-flex align-items-center gap-2" style={{ overflow: "visible" }}>
+            <img
+              src="/logo.png"
+              alt="Logo Manga Store TL"
+              style={{ width: "100px", height: "100px", objectFit: "contain", display: "block", }}
+            />
+            <span className="fw-bold text-dark fs-4 mb-0">Manga Store TL</span>
           </Link>
 
           <div className="ms-auto d-flex align-items-center gap-3">
@@ -73,7 +78,6 @@ const Navbar = () => {
 
             {!auth.isLoggedIn ? (
               <>
-                {/* ✅ ahora abre modal */}
                 <button onClick={openLoginModal} className="btn btn-outline-dark">
                   Iniciar sesión
                 </button>
@@ -83,29 +87,43 @@ const Navbar = () => {
               </>
             ) : (
               <div className="position-relative" ref={dropdownRef}>
+                {/* ✅ Botón Mi cuenta PRO */}
                 <button
-                  className="btn btn-outline-dark d-flex align-items-center"
+                  className="btn btn-outline-dark d-flex align-items-center gap-2 px-3"
                   onClick={toggleDropdown}
                 >
-                  <i className="bi bi-person-circle me-1"></i>
-                  Mi cuenta
+                  <i className="bi bi-person-circle fs-5"></i>
+                  <span className="fw-semibold">Mi cuenta</span>
+                  <i className="bi bi-chevron-down small"></i>
                 </button>
 
+                {/* ✅ Dropdown PRO */}
                 {dropdownOpen && (
-                  <div className="dropdown-menu-custom">
-                    <Link className="dropdown-item" to="/mis-pedidos">
-                      Mis pedidos
+                  <div className="dropdown-custom-menu">
+                    <Link
+                      className="dropdown-custom-item"
+                      to="/mis-pedidos"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <i className="bi bi-bag-check"></i> Mis pedidos
                     </Link>
-                    <Link className="dropdown-item" to="/profile">
-                      Mi perfil
+
+                    <Link
+                      className="dropdown-custom-item"
+                      to="/profile"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      <i className="bi bi-person"></i> Mi perfil
                     </Link>
-                    <hr className="dropdown-divider" />
+
+                    <div className="dropdown-custom-divider"></div>
+
                     <button
                       type="button"
-                      className="dropdown-item text-danger"
+                      className="dropdown-custom-item text-danger"
                       onClick={cerrarSesion}
                     >
-                      Cerrar sesión
+                      <i className="bi bi-box-arrow-right"></i> Cerrar sesión
                     </button>
                   </div>
                 )}
@@ -117,7 +135,6 @@ const Navbar = () => {
         <SidebarMenu open={menuAbierto} onClose={() => setMenuAbierto(false)} />
       </nav>
 
-      {/* ✅ Modal de Auth */}
       <AuthModal
         show={showAuthModal}
         onClose={() => setShowAuthModal(false)}

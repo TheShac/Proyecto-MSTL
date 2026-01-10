@@ -18,10 +18,6 @@ DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 SELECT * FROM Editorial;
 
-INSERT INTO Role (nombre_rol) VALUES
-('stl_emp'),
-('stl_administrador'),
-('stl_superadministrador');
 CREATE TABLE Role (
   id_role INT AUTO_INCREMENT PRIMARY KEY,
   nombre_rol VARCHAR(50) NOT NULL UNIQUE
@@ -29,6 +25,10 @@ CREATE TABLE Role (
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 SELECT * FROM Role;
+INSERT INTO Role (nombre_rol) VALUES
+('stl_emp'),
+('stl_administrador'),
+('stl_superadministrador');
 
 -- TABLAS DE USUARIOS
 
@@ -48,6 +48,7 @@ COLLATE = utf8mb4_unicode_ci;
 
 SELECT * FROM UserEmps_STL;
 ALTER TABLE UserEmps_STL MODIFY emp_image_profile LONGTEXT;
+ALTER TABLE UserEmps_STL ADD COLUMN last_login DATETIME NULL;
 CREATE TABLE UserEmps_STL (
   uuid_emps CHAR(36) PRIMARY KEY DEFAULT (UUID()),
   emp_email VARCHAR(100) NOT NULL UNIQUE,
@@ -63,6 +64,11 @@ CREATE TABLE UserEmps_STL (
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
+ALTER TABLE UserCustomer MODIFY stl_password VARCHAR(255) NULL;
+ALTER TABLE UserEmps_STL MODIFY emp_password VARCHAR(255) NULL;
+ALTER TABLE UserCustomer ADD COLUMN google_id VARCHAR(100) NULL UNIQUE;
+ALTER TABLE UserEmps_STL ADD COLUMN google_id VARCHAR(100) NULL UNIQUE;
+
 CREATE TABLE Address (
   id_address INT AUTO_INCREMENT PRIMARY KEY,
   direccion VARCHAR(255) NOT NULL,
@@ -76,9 +82,8 @@ CREATE TABLE Address (
 )ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
+SELECT *FROM Address;
 
-SELECT * FROM Producto;
-ALTER TABLE producto MODIFY imagen_url LONGTEXT;
 CREATE TABLE Producto (
   id_producto INT AUTO_INCREMENT PRIMARY KEY,
   nombre VARCHAR(255) NOT NULL,
@@ -94,23 +99,29 @@ CREATE TABLE Producto (
 )ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
+SELECT * FROM Producto;
+ALTER TABLE producto MODIFY imagen_url LONGTEXT;
 
 CREATE TABLE Pedido (
   uuid_pedido VARCHAR(20) PRIMARY KEY,
   precio DECIMAL(10, 2) NOT NULL,
   fecha_pedido DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  estado ENUM('pendiente', 'pagado', 'enviado', 'entregado', 'cancelado') NOT NULL DEFAULT 'pendiente',
-  nombre_pedido VARCHAR(100) NOT NULL,
-  apellido_pedido VARCHAR(100) NOT NULL,
-  email_pedido VARCHAR(100) NOT NULL,
+  estado ENUM('carrito','pendiente', 'pagado', 'enviado', 'entregado', 'cancelado') NOT NULL DEFAULT 'carrito',
+  metodo_entrega ENUM('retiro','envio') NULL,
+  costo_envio DECIMAL(10,2) NOT NULL DEFAULT 0,
+  nombre_pedido VARCHAR(100),
+  apellido_pedido VARCHAR(100),
+  email_pedido VARCHAR(100),
   telefono_pedido VARCHAR(20),
   uuid_customer CHAR(36),
-  id_address INT NOT NULL,
+  uuid_guest CHAR(36),
+  id_address INT NULL,
   FOREIGN KEY (uuid_customer) REFERENCES UserCustomer(uuid_customer),
   FOREIGN KEY (id_address) REFERENCES Address(id_address)
 )ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
+SELECT * FROM Pedido;
 
 CREATE TABLE WishList (
   id_wishlist INT AUTO_INCREMENT PRIMARY KEY,
@@ -144,6 +155,7 @@ CREATE TABLE Detalle_Pedido (
 )ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
+SELECT * FROM Detalle_Pedido;
 
 CREATE TABLE Producto_Editorial (
   id_producto INT NOT NULL,
@@ -154,6 +166,7 @@ CREATE TABLE Producto_Editorial (
 )ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
+SELECT * FROM Producto_Editorial;
 
 CREATE TABLE Producto_Genero (
   id_producto INT NOT NULL,
@@ -164,6 +177,7 @@ CREATE TABLE Producto_Genero (
 )ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
+SELECT * FROM Producto_Genero;
 
 CREATE TABLE Reseña_STL (
   id_reseña INT AUTO_INCREMENT PRIMARY KEY,
@@ -195,3 +209,25 @@ BEGIN
     );
 END$$
 DELIMITER ;
+
+CREATE TABLE Movimiento_Inventario (
+  id_movimiento INT AUTO_INCREMENT PRIMARY KEY,
+  id_producto INT NOT NULL,
+  uuid_emps CHAR(36) NOT NULL,
+  tipo ENUM('entrada', 'salida', 'ajuste') NOT NULL,
+  cantidad INT NOT NULL,
+  stock_anterior INT NOT NULL,
+  stock_nuevo INT NOT NULL,
+  motivo VARCHAR(255),
+  fecha_movimiento DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (id_producto) REFERENCES Producto(id_producto),
+  FOREIGN KEY (uuid_emps) REFERENCES UserEmps_STL(uuid_emps),
+
+  INDEX idx_mov_inv_producto (id_producto),
+  INDEX idx_mov_inv_emps (uuid_emps),
+  INDEX idx_mov_inv_fecha (fecha_movimiento)
+) ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;
+SELECT * FROM Movimiento_Inventario;

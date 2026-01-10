@@ -122,3 +122,39 @@ export const EliminarProducto = async (req, res) => {
         return res.status(500).json({ success: false, message: "Error interno al eliminar el producto." });
     }
 };
+
+// OBTENER CATÁLOGO DE PRODUCTOS CON FILTROS, BÚSQUEDA Y PAGINACIÓN
+export const getCatalog = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 12,
+      search = "",
+      editorial = "",
+      minPrice = "",
+      maxPrice = "",
+      sort = "newest",
+    } = req.query;
+
+    const result = await ProductModel.catalog({
+      page: Number(page),
+      limit: Number(limit),
+      search,
+      editorial,
+      minPrice,
+      maxPrice,
+      sort
+    });
+
+    res.json({
+      success: true,
+      data: result.products,
+      total: result.total,
+      page: Number(page),
+      totalPages: Math.ceil(result.total / limit)
+    });
+  } catch (error) {
+    console.error("Error catálogo:", error);
+    res.status(500).json({ success: false, message: "Error interno." });
+  }
+};
