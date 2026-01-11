@@ -131,6 +131,7 @@ export const getCatalog = async (req, res) => {
       limit = 12,
       search = "",
       editorial = "",
+      genre = "",
       minPrice = "",
       maxPrice = "",
       sort = "newest",
@@ -141,6 +142,7 @@ export const getCatalog = async (req, res) => {
       limit: Number(limit),
       search,
       editorial,
+      genre,
       minPrice,
       maxPrice,
       sort

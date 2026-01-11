@@ -1,0 +1,57 @@
+.fp-carousel {
+  position: relative;
+}
+
+.fp-carousel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.fp-viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.fp-track {
+  display: flex;
+  transition: transform 300ms ease;
+  will-change: transform;
+}
+
+.fp-slide {
+  flex: 0 0 100%;
+}
+
+.fp-arrow {
+  width: 40px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.fp-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.fp-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  border: none;
+  background: #ced4da;
+  transition: all 200ms ease;
+}
+
+.fp-dot.active {
+  width: 26px;
+  background: #212529;
+}

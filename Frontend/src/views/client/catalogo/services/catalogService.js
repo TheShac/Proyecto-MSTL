@@ -14,3 +14,8 @@ export const getEditorials = async () => {
   const { data } = await axios.get(`${API_CATALOGO}/editorials`);
   return data;
 };
+
+export const getGenres = async () => {
+  const { data } = await axios.get(`${API_CATALOGO}/genres`);
+  return data;
+};

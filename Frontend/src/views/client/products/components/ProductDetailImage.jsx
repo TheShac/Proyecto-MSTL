@@ -25,7 +25,7 @@ const ProductDetailImage = ({ product, isUnavailable }) => {
           className="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2"
           style={{ fontSize: "0.9rem" }}
         >
-          A PEDIDO / LLEGADA 2-3 SEMANAS
+          NO DISPONIBLE
         </span>
       )}
     </div>

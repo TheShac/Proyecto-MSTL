@@ -126,20 +126,25 @@ export const ProductModel = {
     },
 
     // CATÁLOGO DE PRODUCTOS CON FILTROS, BÚSQUEDA Y PAGINACIÓN
-    catalog: async ({ page, limit, search, editorial, minPrice, maxPrice, sort }) => {
+    catalog: async ({ page, limit, search, editorial, genre, minPrice, maxPrice, sort }) => {
         const offset = (page - 1) * limit;
 
         let whereClauses = [];
         let params = [];
 
         if (search) {
-            whereClauses.push(`(p.nombre LIKE ? OR e.nombre_editorial LIKE ?)`);
-            params.push(`%${search}%`, `%${search}%`);
+            whereClauses.push(`(p.nombre LIKE ? OR e.nombre_editorial LIKE ? OR g.nombre_genero LIKE ?)`);
+            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
         }
 
         if (editorial) {
             whereClauses.push(`e.nombre_editorial = ?`);
             params.push(editorial);
+        }
+
+        if (genre) {
+            whereClauses.push(`g.nombre_genero = ?`);
+            params.push(genre);
         }
 
         if (minPrice) {
@@ -172,10 +177,13 @@ export const ProductModel = {
             p.precio,
             p.imagen_url,
             p.stock,
-            e.nombre_editorial AS editorial
+            e.nombre_editorial AS editorial,
+            g.nombre_genero AS genero
             FROM Producto p
             LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto
             LEFT JOIN Editorial e ON pe.id_editorial = e.id_editorial
+            LEFT JOIN Producto_Genero pg ON p.id_producto = pg.id_producto
+            LEFT JOIN Genero g ON pg.id_genero = g.id_genero
             ${whereSQL}
             ${orderSQL}
             LIMIT ? OFFSET ?
@@ -190,6 +198,8 @@ export const ProductModel = {
             FROM Producto p
             LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto
             LEFT JOIN Editorial e ON pe.id_editorial = e.id_editorial
+            LEFT JOIN Producto_Genero pg ON p.id_producto = pg.id_producto
+            LEFT JOIN Genero g ON pg.id_genero = g.id_genero
             ${whereSQL}
             `,
             params
