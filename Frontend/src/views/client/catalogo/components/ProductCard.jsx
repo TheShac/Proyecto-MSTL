@@ -1,11 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { formatPrice } from "../utils/formatPrice";
-
 import placeholderImg from "../../../../assets/images/error-icon.jpg";
 
 const ProductCard = ({ product }) => {
-  const isUnavailable = product.estado === "no_disponible" || product.stock <= 0;
+  const isUnavailable = product.estado === "no_disponible" || Number(product.stock) <= 0;
+
+  const hasOffer =
+    product.precio_oferta !== null &&
+    product.precio_oferta !== undefined &&
+    String(product.precio_oferta).trim() !== "" &&
+    Number(product.precio_oferta) > 0 &&
+    Number(product.precio_oferta) < Number(product.precio);
 
   const imageSrc =
     product.imagen_url && product.imagen_url.trim() !== ""
@@ -14,7 +20,14 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="card h-100 shadow-sm border-0 position-relative">
+      {/* Badge Oferta */}
+      {hasOffer && (
+        <span className="badge bg-danger position-absolute top-0 start-0 m-2">
+          Oferta
+        </span>
+      )}
 
+      {/* Imagen clickeable */}
       <Link to={`/catalogo/${product.id_producto}`} className="text-decoration-none">
         <img
           src={imageSrc}
@@ -27,6 +40,7 @@ const ProductCard = ({ product }) => {
         />
       </Link>
 
+      {/* Overlay no disponible */}
       {isUnavailable && (
         <div
           className="position-absolute w-100 text-center fw-bold text-white"
@@ -42,27 +56,25 @@ const ProductCard = ({ product }) => {
       )}
 
       <div className="card-body">
-        <p className="text-muted small mb-1">{product.editorial}</p>
+        <p className="text-muted small mb-1">{product.editorial || "Sin editorial"}</p>
+        <h6 className="fw-semibold text-truncate">{product.nombre}</h6>
 
-        <Link
-          to={`/catalogo/${product.id_producto}`}
-          className="text-decoration-none text-dark"
-        >
-          <h6
-            className="fw-semibold text-truncate mb-2"
-            style={{ cursor: "pointer" }}
-          >
-            {product.nombre}
-          </h6>
-        </Link>
-
-        <p className="fw-bold mt-2">{formatPrice(product.precio)}</p>
+        {/* Precio */}
+        {hasOffer ? (
+          <div className="mt-2">
+            <div className="text-muted small text-decoration-line-through">
+              {formatPrice(product.precio)}
+            </div>
+            <div className="fw-bold text-danger fs-5">
+              {formatPrice(product.precio_oferta)}
+            </div>
+          </div>
+        ) : (
+          <p className="fw-bold mt-2">{formatPrice(product.precio)}</p>
+        )}
 
         <div className="d-flex gap-2 mt-3">
-          <Link
-            to={`/catalogo/${product.id_producto}`}
-            className="btn btn-danger w-50"
-          >
+          <Link to={`/catalogo/${product.id_producto}`} className="btn btn-danger w-50">
             Ver detalles
           </Link>
 

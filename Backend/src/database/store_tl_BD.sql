@@ -255,28 +255,27 @@ CREATE TABLE Producto_Destacado (
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 
-CREATE TABLE Oferta (
+CREATE TABLE Producto_Oferta (
   id_oferta INT AUTO_INCREMENT PRIMARY KEY,
-  id_producto INT NOT NULL,
+  id_producto INT NOT NULL UNIQUE,
 
-  tipo ENUM('porcentaje','descuento_fijo','precio_fijo') NOT NULL,
-  valor DECIMAL(10,2) NOT NULL,
+  precio_oferta DECIMAL(10,2) NOT NULL,
+  activo TINYINT(1) NOT NULL DEFAULT 1,
 
   fecha_inicio DATETIME NULL,
   fecha_fin DATETIME NULL,
 
-  activa TINYINT(1) NOT NULL DEFAULT 1,
-
-  creada_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  actualizada_en DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
 
   FOREIGN KEY (id_producto) REFERENCES Producto(id_producto) ON DELETE CASCADE,
-  INDEX idx_oferta_producto (id_producto),
-  INDEX idx_oferta_activa (activa),
+
+  INDEX idx_oferta_activo (activo),
   INDEX idx_oferta_fechas (fecha_inicio, fecha_fin)
 ) ENGINE=InnoDB
 DEFAULT CHARSET=utf8mb4
 COLLATE=utf8mb4_unicode_ci;
+
 
 DELIMITER $$
 

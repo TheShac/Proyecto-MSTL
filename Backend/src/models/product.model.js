@@ -53,7 +53,22 @@ export const ProductModel = {
                 g.nombre_genero AS genero,
 
                 c.emp_nombre AS creado_por,
-                m.emp_nombre AS modificado_por
+                m.emp_nombre AS modificado_por,
+
+                CASE
+                WHEN po.id_oferta IS NOT NULL
+                    AND po.activo = 1
+                    AND (po.fecha_inicio IS NULL OR po.fecha_inicio <= NOW())
+                    AND (po.fecha_fin IS NULL OR po.fecha_fin >= NOW())
+                THEN po.precio_oferta
+                ELSE NULL
+                END AS precio_oferta,
+
+                -- (opcionales)
+                po.activo AS oferta_activa,
+                po.fecha_inicio AS oferta_inicio,
+                po.fecha_fin AS oferta_fin
+
             FROM Producto p
             LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto
             LEFT JOIN Editorial e ON pe.id_editorial = e.id_editorial
@@ -61,11 +76,15 @@ export const ProductModel = {
             LEFT JOIN Genero g ON pg.id_genero = g.id_genero
             LEFT JOIN UserEmps_STL c ON p.uuid_emp_create = c.uuid_emps
             LEFT JOIN UserEmps_STL m ON p.uuid_emp_modify = m.uuid_emps
+
+            LEFT JOIN Producto_Oferta po ON po.id_producto = p.id_producto
+
             WHERE p.id_producto = ?`,
             [id]
         );
         return rows[0];
     },
+
 
     // CREAR NUEVO PRODUCTO
     create: async (productData) => {
@@ -170,20 +189,33 @@ export const ProductModel = {
         const [rows] = await pool.query(
             `
             SELECT 
-            p.id_producto,
-            p.nombre,
-            p.estado,
-            p.descripcion,
-            p.precio,
-            p.imagen_url,
-            p.stock,
-            e.nombre_editorial AS editorial,
-            g.nombre_genero AS genero
+                p.id_producto,
+                p.nombre,
+                p.estado,
+                p.descripcion,
+                p.precio,
+                p.imagen_url,
+                p.stock,
+                e.nombre_editorial AS editorial,
+                g.nombre_genero AS genero,
+
+                CASE
+                WHEN po.id_oferta IS NOT NULL
+                    AND po.activo = 1
+                    AND (po.fecha_inicio IS NULL OR po.fecha_inicio <= NOW())
+                    AND (po.fecha_fin IS NULL OR po.fecha_fin >= NOW())
+                THEN po.precio_oferta
+                ELSE NULL
+                END AS precio_oferta
+
             FROM Producto p
             LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto
             LEFT JOIN Editorial e ON pe.id_editorial = e.id_editorial
             LEFT JOIN Producto_Genero pg ON p.id_producto = pg.id_producto
             LEFT JOIN Genero g ON pg.id_genero = g.id_genero
+
+            LEFT JOIN Producto_Oferta po ON po.id_producto = p.id_producto
+
             ${whereSQL}
             ${orderSQL}
             LIMIT ? OFFSET ?
