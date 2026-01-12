@@ -5,6 +5,10 @@ export const FeaturedModel = {
     const [rows] = await pool.query(
       `
       SELECT
+        fd.id_destacado,
+        fd.activo,
+        fd.posicion,
+
         p.id_producto,
         p.nombre,
         p.estado,
@@ -12,8 +16,8 @@ export const FeaturedModel = {
         p.precio,
         p.imagen_url,
         p.stock,
-        e.nombre_editorial AS editorial,
-        fd.posicion
+
+        e.nombre_editorial AS editorial
       FROM Producto_Destacado fd
       INNER JOIN Producto p ON p.id_producto = fd.id_producto
       LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto
@@ -26,6 +30,7 @@ export const FeaturedModel = {
       `,
       [Number(limit)]
     );
+
     return rows;
   },
 
@@ -54,7 +59,13 @@ export const FeaturedModel = {
     return rows;
   },
 
-  addFeatured: async ({ id_producto, posicion = 0, activo = 1, fecha_inicio = null, fecha_fin = null }) => {
+  addFeatured: async ({
+    id_producto,
+    posicion = 0,
+    activo = 1,
+    fecha_inicio = null,
+    fecha_fin = null,
+  }) => {
     const [result] = await pool.query(
       `
       INSERT INTO Producto_Destacado (id_producto, posicion, activo, fecha_inicio, fecha_fin)
@@ -116,5 +127,5 @@ export const FeaturedModel = {
       [id_producto]
     );
     return rows.length > 0;
-  }
+  },
 };
