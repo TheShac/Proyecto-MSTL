@@ -8,6 +8,7 @@ CREATE TABLE Genero (
 )ENGINE = InnoDB
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
+INSERT INTO Genero (nombre_genero) VALUE ('Isekai');
 SELECT * FROM Genero;
 
 CREATE TABLE Editorial (
@@ -231,3 +232,79 @@ CREATE TABLE Movimiento_Inventario (
 DEFAULT CHARSET = utf8mb4
 COLLATE = utf8mb4_unicode_ci;
 SELECT * FROM Movimiento_Inventario;
+
+CREATE TABLE Producto_Destacado (
+	id_destacado INT AUTO_INCREMENT PRIMARY KEY,
+    id_producto INT NOT NULL,
+    
+    activo TINYINT(1) NOT NULL DEFAULT 1,
+	posicion INT NOT NULL DEFAULT 0,
+
+	fecha_inicio DATETIME NULL,
+	fecha_fin DATETIME NULL,
+
+	creado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+	FOREIGN KEY (id_producto) REFERENCES Producto(id_producto) ON DELETE CASCADE,
+
+	UNIQUE KEY uk_producto_destacado (id_producto),
+	INDEX idx_destacado_activo (activo),
+	INDEX idx_destacado_posicion (posicion),
+	INDEX idx_destacado_fechas (fecha_inicio, fecha_fin)
+)ENGINE = InnoDB
+DEFAULT CHARSET = utf8mb4
+COLLATE = utf8mb4_unicode_ci;
+
+CREATE TABLE Oferta (
+  id_oferta INT AUTO_INCREMENT PRIMARY KEY,
+  id_producto INT NOT NULL,
+
+  tipo ENUM('porcentaje','descuento_fijo','precio_fijo') NOT NULL,
+  valor DECIMAL(10,2) NOT NULL,
+
+  fecha_inicio DATETIME NULL,
+  fecha_fin DATETIME NULL,
+
+  activa TINYINT(1) NOT NULL DEFAULT 1,
+
+  creada_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  actualizada_en DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (id_producto) REFERENCES Producto(id_producto) ON DELETE CASCADE,
+  INDEX idx_oferta_producto (id_producto),
+  INDEX idx_oferta_activa (activa),
+  INDEX idx_oferta_fechas (fecha_inicio, fecha_fin)
+) ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
+
+DELIMITER $$
+
+CREATE TRIGGER oferta_unica_activa
+BEFORE INSERT ON Oferta
+FOR EACH ROW
+BEGIN
+  IF NEW.activa = 1 THEN
+    UPDATE Oferta
+    SET activa = 0
+    WHERE id_producto = NEW.id_producto AND activa = 1;
+  END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER oferta_unica_activa_update
+BEFORE UPDATE ON Oferta
+FOR EACH ROW
+BEGIN
+  IF NEW.activa = 1 AND OLD.activa = 0 THEN
+    UPDATE Oferta
+    SET activa = 0
+    WHERE id_producto = NEW.id_producto AND activa = 1;
+  END IF;
+END$$
+
+DELIMITER ;
+

@@ -1,13 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import Swal from 'sweetalert2';
+import React, { useEffect, useMemo, useState } from "react";
+import Swal from "sweetalert2";
 
-import ProductSearchBar from './ProductsSearchBar';
-import ProductsTable from './ProductsTable';
-import ProductModal from './ProductModal';
+import ProductSearchBar from "./ProductsSearchBar";
+import ProductsTable from "./ProductsTable";
+import ProductModal from "./ProductModal";
+import FeaturedProductsModal from "../featured/components/FeaturedProductsModal";
 
-import { productService } from '../services/product.service';
-import { emptyProduct, fromApiToForm, toPayload } from '../mappers/product.mapper';
-import { validateProduct } from '../utils/validators';
+import { productService } from "../services/product.service";
+import { emptyProduct, fromApiToForm, toPayload } from "../mappers/product.mapper";
+import { validateProduct } from "../utils/validators";
 import { normalizeText } from "../utils/formatters";
 
 const ProductsPage = () => {
@@ -15,7 +16,7 @@ const ProductsPage = () => {
   const [editorials, setEditorials] = useState([]);
   const [genres, setGenres] = useState([]);
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -26,10 +27,12 @@ const ProductsPage = () => {
   const [form, setForm] = useState(emptyProduct);
   const [errors, setErrors] = useState({});
 
+  const [showFeaturedModal, setShowFeaturedModal] = useState(false);
+
   const token =
-    localStorage.getItem('accessToken') ||
-    localStorage.getItem('token') ||
-    '';
+    localStorage.getItem("accessToken") ||
+    localStorage.getItem("token") ||
+    "";
 
   const loadAll = async () => {
     setIsLoading(true);
@@ -45,7 +48,7 @@ const ProductsPage = () => {
       setGenres(gens);
     } catch (err) {
       console.error(err);
-      Swal.fire('Error', 'No se pudieron cargar los datos.', 'error');
+      Swal.fire("Error", "No se pudieron cargar los datos.", "error");
     } finally {
       setIsLoading(false);
     }
@@ -57,19 +60,19 @@ const ProductsPage = () => {
   }, []);
 
   const filteredProducts = useMemo(() => {
-  const q = normalizeText(search);
-  if (!q) return products;
+    const q = normalizeText(search);
+    if (!q) return products;
 
-  return products.filter((p) => {
-    const nombre = normalizeText(p.nombre);
-    const editorial = normalizeText(p.editorial);
-    const genero = normalizeText(p.genero);
+    return products.filter((p) => {
+      const nombre = normalizeText(p.nombre);
+      const editorial = normalizeText(p.editorial);
+      const genero = normalizeText(p.genero);
 
-        return (
+      return (
         nombre.includes(q) ||
         editorial.includes(q) ||
         genero.includes(q)
-        );
+      );
     });
   }, [products, search]);
 
@@ -107,7 +110,7 @@ const ProductsPage = () => {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      setForm((prev) => ({ ...prev, imagen_url: e.target?.result || '' }));
+      setForm((prev) => ({ ...prev, imagen_url: e.target?.result || "" }));
     };
     reader.readAsDataURL(file);
   };
@@ -125,10 +128,10 @@ const ProductsPage = () => {
 
       if (isEditing) {
         await productService.update(form.id_producto, payload, token);
-        Swal.fire('Éxito', 'Producto actualizado', 'success');
+        Swal.fire("Éxito", "Producto actualizado", "success");
       } else {
         await productService.create(payload, token);
-        Swal.fire('Éxito', 'Producto creado', 'success');
+        Swal.fire("Éxito", "Producto creado", "success");
       }
 
       closeModal();
@@ -136,9 +139,9 @@ const ProductsPage = () => {
     } catch (err) {
       console.error(err);
       Swal.fire(
-        'Error',
-        err?.response?.data?.message || 'No se pudo guardar el producto',
-        'error'
+        "Error",
+        err?.response?.data?.message || "No se pudo guardar el producto",
+        "error"
       );
     } finally {
       setIsSaving(false);
@@ -147,25 +150,46 @@ const ProductsPage = () => {
 
   const onDelete = async (product) => {
     const result = await Swal.fire({
-      title: '¿Eliminar producto?',
+      title: "¿Eliminar producto?",
       text: `Se eliminará "${product.nombre}"`,
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Sí, eliminar",
     });
 
     if (!result.isConfirmed) return;
 
     try {
       await productService.remove(product.id_producto, token);
-      Swal.fire('Eliminado', 'Producto eliminado correctamente', 'success');
+      Swal.fire("Eliminado", "Producto eliminado correctamente", "success");
       await loadAll();
     } catch (err) {
       console.error(err);
-      Swal.fire('Error', 'No se pudo eliminar el producto', 'error');
+      Swal.fire("Error", "No se pudo eliminar el producto", "error");
     }
+  };
+
+  // ✅ Destacados
+  const openFeatured = () => {
+    if (!token) {
+      Swal.fire(
+        "Sin sesión",
+        "Debes iniciar sesión como admin para gestionar destacados.",
+        "warning"
+      );
+      return;
+    }
+    setShowFeaturedModal(true);
+  };
+
+  const closeFeatured = async () => {
+    setShowFeaturedModal(false);
+
+    // opcional: refrescar por si luego mostrarás “destacado” en la tabla
+    // (si no usas destacado en tabla, lo puedes quitar)
+    // await loadAll();
   };
 
   return (
@@ -175,6 +199,7 @@ const ProductsPage = () => {
         search={search}
         onSearchChange={setSearch}
         onCreate={openCreate}
+        onOpenFeatured={openFeatured}
       />
 
       <div className="card shadow border-0 rounded-4 w-100 products-card">
@@ -206,6 +231,12 @@ const ProductsPage = () => {
         onSubmit={onSubmit}
         onChange={onChange}
         onImageUpload={onImageUpload}
+      />
+
+      <FeaturedProductsModal
+        show={showFeaturedModal}
+        onClose={closeFeatured}
+        token={token}
       />
     </div>
   );

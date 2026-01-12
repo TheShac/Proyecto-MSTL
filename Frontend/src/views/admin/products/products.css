@@ -93,3 +93,14 @@
   background: #f8d7da;
   color: #842029;
 }
+
+.products-table .products-desc {
+  max-width: 520px; 
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  line-height: 1.35;
+  max-height: calc(1.35em * 3);
+  word-break: break-word;
+}
