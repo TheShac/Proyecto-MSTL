@@ -11,10 +11,12 @@ const ProductCard = ({ product }) => {
       ? product.imagen_url
       : placeholderImg;
 
-  const hasOffer =
-    product.precio_oferta !== null &&
-    product.precio_oferta !== undefined &&
-    String(product.precio_oferta).trim() !== "";
+  const hasOffer = product.precio_oferta !== null && product.precio_oferta !== undefined;
+
+  const discountPct =
+  hasOffer && Number(product.precio) > 0
+    ? Math.round((1 - Number(product.precio_oferta) / Number(product.precio)) * 100)
+    : null;
 
   return (
     <div className="card h-100 shadow-sm border-0 position-relative">
