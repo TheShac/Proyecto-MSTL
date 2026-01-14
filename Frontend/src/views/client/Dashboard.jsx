@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import FeaturedProductsCarousel from "./home/components/FeaturedProductsCarousel";
+import OffersCarousel from "./home/components/OffersCarousel";
 
 const Dashboard = () => {
   return (
@@ -29,6 +30,11 @@ const Dashboard = () => {
         </div>
 
         <FeaturedProductsCarousel />
+      </section>
+
+      <section className="py-5">
+        <h2 className="h4 border-bottom pb-2 mb-4">Ofertas</h2>
+        <OffersCarousel />
       </section>
     </div>
   );

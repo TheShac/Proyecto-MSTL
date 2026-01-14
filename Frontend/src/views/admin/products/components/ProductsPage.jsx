@@ -4,7 +4,9 @@ import Swal from "sweetalert2";
 import ProductSearchBar from "./ProductsSearchBar";
 import ProductsTable from "./ProductsTable";
 import ProductModal from "./ProductModal";
+
 import FeaturedProductsModal from "../featured/components/FeaturedProductsModal";
+import OffersModal from "../../offers/components/OffersModal";
 
 import { productService } from "../services/product.service";
 import { emptyProduct, fromApiToForm, toPayload } from "../mappers/product.mapper";
@@ -28,6 +30,7 @@ const ProductsPage = () => {
   const [errors, setErrors] = useState({});
 
   const [showFeaturedModal, setShowFeaturedModal] = useState(false);
+  const [showOffersModal, setShowOffersModal] = useState(false);
 
   const token =
     localStorage.getItem("accessToken") ||
@@ -68,14 +71,11 @@ const ProductsPage = () => {
       const editorial = normalizeText(p.editorial);
       const genero = normalizeText(p.genero);
 
-      return (
-        nombre.includes(q) ||
-        editorial.includes(q) ||
-        genero.includes(q)
-      );
+      return nombre.includes(q) || editorial.includes(q) || genero.includes(q);
     });
   }, [products, search]);
 
+  // ✅ CRUD producto
   const openCreate = () => {
     setIsEditing(false);
     setErrors({});
@@ -184,12 +184,21 @@ const ProductsPage = () => {
     setShowFeaturedModal(true);
   };
 
-  const closeFeatured = async () => {
+  const closeFeatured = () => {
     setShowFeaturedModal(false);
+  };
 
-    // opcional: refrescar por si luego mostrarás “destacado” en la tabla
-    // (si no usas destacado en tabla, lo puedes quitar)
-    // await loadAll();
+  // ✅ Ofertas
+  const openOffers = () => {
+    if (!token) {
+      Swal.fire("Sin sesión", "Debes iniciar sesión como admin.", "warning");
+      return;
+    }
+    setShowOffersModal(true);
+  };
+
+  const closeOffers = () => {
+    setShowOffersModal(false);
   };
 
   return (
@@ -200,6 +209,7 @@ const ProductsPage = () => {
         onSearchChange={setSearch}
         onCreate={openCreate}
         onOpenFeatured={openFeatured}
+        onOpenOffers={openOffers}
       />
 
       <div className="card shadow border-0 rounded-4 w-100 products-card">
@@ -236,6 +246,12 @@ const ProductsPage = () => {
       <FeaturedProductsModal
         show={showFeaturedModal}
         onClose={closeFeatured}
+        token={token}
+      />
+
+      <OffersModal
+        show={showOffersModal}
+        onClose={closeOffers}
         token={token}
       />
     </div>

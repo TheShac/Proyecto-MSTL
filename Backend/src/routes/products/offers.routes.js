@@ -3,9 +3,10 @@ import { protect } from "../../Middlewares/authMiddleware.js";
 import {
   getOffersPublic,
   getOffersAdmin,
-  upsertOffer,
+  addOffer,
+  addOfferBatch,
+  updateOffer,
   removeOffer,
-  applyOfferBulk,
 } from "../../controllers/products/offers.controller.js";
 
 const router = Router();
@@ -15,8 +16,9 @@ router.get("/", getOffersPublic);
 
 // Admin
 router.get("/admin", protect, getOffersAdmin);
-router.post("/bulk", protect, applyOfferBulk);
-router.post("/:id_producto", protect, upsertOffer);
+router.post("/", protect, addOffer);
+router.post("/batch", protect, addOfferBatch);
+router.put("/:id_producto", protect, updateOffer);
 router.delete("/:id_producto", protect, removeOffer);
 
 export default router;

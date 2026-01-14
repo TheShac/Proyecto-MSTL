@@ -19,7 +19,7 @@ import orderRoutes from './routes/orders/order.routes.js';
 import orderCustomerRoutes from './routes/orders/orders.customer.routes.js';
 import ordersGuestRoutes from "./routes/orders/orders.guest.routes.js";
 import featuredRoutes from "./routes/featured.routes.js";
-import offersRoutes from "./routes/products/offers.routes.js";
+import offerRoutes from "./routes/products/offers.routes.js";
 
 
 dotenv.config();
@@ -44,6 +44,6 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/orders', orderCustomerRoutes);
 app.use("/api/orders", ordersGuestRoutes);
 app.use("/api/featured", featuredRoutes);
-app.use("/api/offers", offersRoutes);
+app.use("/api/offers", offerRoutes);
 
 export default app;

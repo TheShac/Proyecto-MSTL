@@ -135,6 +135,7 @@ export const getCatalog = async (req, res) => {
       minPrice = "",
       maxPrice = "",
       sort = "newest",
+      onlyOffers = "0",
     } = req.query;
 
     const result = await ProductModel.catalog({
@@ -145,7 +146,8 @@ export const getCatalog = async (req, res) => {
       genre,
       minPrice,
       maxPrice,
-      sort
+      sort,
+      onlyOffers: String(onlyOffers) === "1" || String(onlyOffers).toLowerCase() === "true",
     });
 
     res.json({

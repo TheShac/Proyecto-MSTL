@@ -19,7 +19,7 @@ const OffersCarousel = () => {
     const fetchOffers = async () => {
       setLoading(true);
       try {
-        const res = await getOffersPublic();
+        const res = await getOffersPublic(12);
         if (res?.success) setItems(res.data || []);
         else setItems([]);
       } catch (e) {
@@ -44,33 +44,31 @@ const OffersCarousel = () => {
     );
   }
 
-  if (!slides.length) {
-    return <div className="text-muted py-3">No hay productos en oferta por ahora.</div>;
-  }
+  if (!slides.length) return <div className="text-muted py-3">No hay ofertas activas aún.</div>;
 
   return (
     <div className="position-relative">
-      {/* Flechas afuera */}
+      {/* Flechas negras afuera */}
       {slides.length > 1 && (
         <>
           <button
+            className="btn btn-light border position-absolute top-50 start-0 translate-middle-y"
+            style={{ zIndex: 5, marginLeft: "-18px" }}
             type="button"
-            className="btn btn-outline-dark position-absolute top-50 start-0 translate-middle-y"
-            style={{ zIndex: 5 }}
             data-bs-target={`#${carouselId}`}
             data-bs-slide="prev"
           >
-            <i className="bi bi-chevron-left" />
+            <i className="bi bi-chevron-left text-dark" />
           </button>
 
           <button
+            className="btn btn-light border position-absolute top-50 end-0 translate-middle-y"
+            style={{ zIndex: 5, marginRight: "-18px" }}
             type="button"
-            className="btn btn-outline-dark position-absolute top-50 end-0 translate-middle-y"
-            style={{ zIndex: 5 }}
             data-bs-target={`#${carouselId}`}
             data-bs-slide="next"
           >
-            <i className="bi bi-chevron-right" />
+            <i className="bi bi-chevron-right text-dark" />
           </button>
         </>
       )}
@@ -85,7 +83,7 @@ const OffersCarousel = () => {
         <div className="carousel-inner">
           {slides.map((group, idx) => (
             <div key={idx} className={`carousel-item ${idx === 0 ? "active" : ""}`}>
-              <div className="row g-3 px-5">
+              <div className="row g-3">
                 {group.map((p) => (
                   <div key={p.id_producto} className="col-6 col-md-3">
                     <ProductCard product={p} />

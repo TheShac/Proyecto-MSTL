@@ -1,6 +1,6 @@
 import React from "react";
 
-const ProductSearchBar = ({ title, search, onSearchChange, onCreate, onOpenFeatured }) => {
+const ProductSearchBar = ({ title, search, onSearchChange, onCreate, onOpenFeatured, onOpenOffers }) => {
   return (
     <div className="mb-3">
       <div className="d-flex justify-content-between align-items-start mb-3">
@@ -15,6 +15,11 @@ const ProductSearchBar = ({ title, search, onSearchChange, onCreate, onOpenFeatu
           <button className="btn btn-dark shadow-sm" onClick={onOpenFeatured}>
             <i className="bi bi-star-fill me-2 text-warning"></i>
             Gestionar Destacados
+          </button>
+
+          <button className="btn btn-outline-danger shadow-sm" onClick={onOpenOffers}>
+            <i className="bi bi-tag-fill me-2"></i>
+            Gestionar Ofertas
           </button>
         </div>
       </div>

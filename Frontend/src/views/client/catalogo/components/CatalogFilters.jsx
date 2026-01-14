@@ -91,6 +91,21 @@ const CatalogFilters = ({
           </select>
         </div>
 
+        <div className="form-check mt-2">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="onlyOffers"
+            checked={!!draftFilters.onlyOffers}
+            onChange={(e) =>
+              setDraftFilters((prev) => ({ ...prev, onlyOffers: e.target.checked }))
+            }
+          />
+          <label className="form-check-label" htmlFor="onlyOffers">
+            Solo ofertas
+          </label>
+        </div>
+
         {/* ✅ botones */}
         <div className="col-md-2 d-grid">
           <button className="btn btn-dark" onClick={onApply}>

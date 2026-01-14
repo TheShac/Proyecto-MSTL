@@ -6,41 +6,39 @@ import placeholderImg from "../../../../assets/images/error-icon.jpg";
 const ProductCard = ({ product }) => {
   const isUnavailable = product.estado === "no_disponible" || Number(product.stock) <= 0;
 
-  const hasOffer =
-    product.precio_oferta !== null &&
-    product.precio_oferta !== undefined &&
-    String(product.precio_oferta).trim() !== "" &&
-    Number(product.precio_oferta) > 0 &&
-    Number(product.precio_oferta) < Number(product.precio);
-
   const imageSrc =
     product.imagen_url && product.imagen_url.trim() !== ""
       ? product.imagen_url
       : placeholderImg;
 
+  const hasOffer =
+    product.precio_oferta !== null &&
+    product.precio_oferta !== undefined &&
+    String(product.precio_oferta).trim() !== "";
+
   return (
     <div className="card h-100 shadow-sm border-0 position-relative">
-      {/* Badge Oferta */}
+      {/* ✅ Badge Oferta */}
       {hasOffer && (
         <span className="badge bg-danger position-absolute top-0 start-0 m-2">
-          Oferta
+          OFERTA
         </span>
       )}
 
-      {/* Imagen clickeable */}
+      {/* ✅ Imagen clickeable */}
       <Link to={`/catalogo/${product.id_producto}`} className="text-decoration-none">
         <img
           src={imageSrc}
           className="card-img-top"
           alt={product.nombre}
-          style={{ height: "300px", objectFit: "cover", cursor: "pointer" }}
+          style={{ height: "300px", objectFit: "cover" }}
           onError={(e) => {
             e.target.src = placeholderImg;
           }}
         />
       </Link>
 
-      {/* Overlay no disponible */}
+      {/* Overlay NO DISPONIBLE */}
       {isUnavailable && (
         <div
           className="position-absolute w-100 text-center fw-bold text-white"
@@ -56,13 +54,13 @@ const ProductCard = ({ product }) => {
       )}
 
       <div className="card-body">
-        <p className="text-muted small mb-1">{product.editorial || "Sin editorial"}</p>
+        <p className="text-muted small mb-1">{product.editorial}</p>
         <h6 className="fw-semibold text-truncate">{product.nombre}</h6>
 
-        {/* Precio */}
+        {/* ✅ Precios */}
         {hasOffer ? (
           <div className="mt-2">
-            <div className="text-muted small text-decoration-line-through">
+            <div className="text-muted text-decoration-line-through small">
               {formatPrice(product.precio)}
             </div>
             <div className="fw-bold text-danger fs-5">
@@ -74,7 +72,10 @@ const ProductCard = ({ product }) => {
         )}
 
         <div className="d-flex gap-2 mt-3">
-          <Link to={`/catalogo/${product.id_producto}`} className="btn btn-danger w-50">
+          <Link
+            to={`/catalogo/${product.id_producto}`}
+            className="btn btn-danger w-50"
+          >
             Ver detalles
           </Link>
 

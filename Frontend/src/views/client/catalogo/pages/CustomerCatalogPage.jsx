@@ -11,7 +11,6 @@ import { getCatalogProducts, getEditorials, getGenres } from "../services/catalo
 const CustomerCatalogPage = () => {
   const location = useLocation();
 
-  // ✅ lee query params del link (ej: /catalogo?editorial=Ivrea%20Argentina&sort=newest)
   const initialFromUrl = useMemo(() => {
     const sp = new URLSearchParams(location.search);
     return {
@@ -30,33 +29,37 @@ const CustomerCatalogPage = () => {
 
   const [loading, setLoading] = useState(false);
 
-  // ✅ draftFilters = lo que escribe el usuario
-  const [draftFilters, setDraftFilters] = useState(initialFromUrl);
+  const [draftFilters, setDraftFilters] = useState({
+    search: "",
+    editorial: "",
+    minPrice: "",
+    maxPrice: "",
+    sort: "newest",
+    onlyOffers: false,
+  });
 
-  // ✅ filtros aplicados
-  const [filters, setFilters] = useState(initialFromUrl);
+  const [filters, setFilters] = useState({
+    search: "",
+    editorial: "",
+    minPrice: "",
+    maxPrice: "",
+    sort: "newest",
+    onlyOffers: false,
+  });
 
   const [page, setPage] = useState(1);
   const limit = 12;
 
   const [totalPages, setTotalPages] = useState(1);
 
-  // ✅ cuando entras desde un link con query params (Ver más productos →)
-  // dejamos el formulario (draft) con esos valores.
-  // Si quieres que NO se apliquen automáticamente, comenta la línea setFilters(initialFromUrl)
   useEffect(() => {
     setDraftFilters(initialFromUrl);
 
-    // ✅ opción A (recomendado para UX): que sí se apliquen al venir desde el link
     setFilters(initialFromUrl);
-
-    // ✅ opción B (tu requisito estricto): que NO se apliquen hasta "Aplicar"
-    // -> comenta setFilters(...) de arriba y deja solo draft
 
     setPage(1);
   }, [initialFromUrl]);
 
-  // ✅ cargar filtros (editoriales/géneros) al cargar la página
   useEffect(() => {
     const loadFilters = async () => {
       try {
@@ -72,10 +75,8 @@ const CustomerCatalogPage = () => {
     loadFilters();
   }, []);
 
-  // ✅ cargar productos cuando cambie page o filters
   useEffect(() => {
     fetchProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, page]);
 
   const fetchProducts = async () => {
@@ -98,13 +99,11 @@ const CustomerCatalogPage = () => {
     }
   };
 
-  // ✅ aplicar filtros solo con botón
   const handleApplyFilters = () => {
     setFilters(draftFilters);
     setPage(1);
   };
 
-  // ✅ limpiar filtros
   const handleClearFilters = () => {
     const clean = {
       search: "",
@@ -113,6 +112,7 @@ const CustomerCatalogPage = () => {
       minPrice: "",
       maxPrice: "",
       sort: "newest",
+      onlyOffers: false,
     };
     setDraftFilters(clean);
     setFilters(clean);

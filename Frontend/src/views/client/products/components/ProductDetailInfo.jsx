@@ -1,6 +1,11 @@
 import React from "react";
+import { formatPrice } from "../../utils/formatPrice";
 
 const ProductDetailInfo = ({ product, isUnavailable }) => {
+  const hasOffer =
+    product?.precio_oferta !== null &&
+    product?.precio_oferta !== undefined;
+
   return (
     <>
       <p className="text-uppercase text-muted fw-semibold mb-1">
@@ -9,26 +14,34 @@ const ProductDetailInfo = ({ product, isUnavailable }) => {
 
       <h1 className="fw-bold mb-3">{product.nombre}</h1>
 
-      {/* Rating fake */}
-      <div className="d-flex align-items-center mb-3">
-        <span className="text-warning me-2">
-          <i className="bi bi-star-fill"></i>{" "}
-          <i className="bi bi-star-fill"></i>{" "}
-          <i className="bi bi-star-fill"></i>{" "}
-          <i className="bi bi-star-fill"></i>{" "}
-          <i className="bi bi-star-fill"></i>
-        </span>
-        <span className="text-primary small">(1 Reseña)</span>
+      <div className="mb-3">
+        {hasOffer ? (
+          <>
+            <div className="text-muted text-decoration-line-through fs-5">
+              {formatPrice(product.precio)}
+            </div>
+
+            <div className="fw-bold text-danger fs-2">
+              {formatPrice(product.precio_oferta)}
+            </div>
+
+            <span className="badge bg-danger mt-2">OFERTA</span>
+          </>
+        ) : (
+          <div className="fw-bold fs-2">
+            {formatPrice(product.precio)}
+          </div>
+        )}
       </div>
 
       <h6 className="text-uppercase fw-bold mt-4">Descripción</h6>
-      <p className="text-muted" style={{ lineHeight: "1.8", textAlign: "justify", textJustify: "inter-word", }}>
+      <p className="text-muted" style={{ lineHeight: "1.8" }}>
         {product.descripcion || "Sin descripción disponible."}
       </p>
 
       {isUnavailable && (
         <div className="alert alert-danger fw-semibold mt-4">
-          ESTE PRODUCTO NO SE ENCUENTRA EN STOCK. PRONTO LO ACTUALIZAREMOS.
+          ESTE PRODUCTO NO SE ENCUENTRA EN STOCK.
         </div>
       )}
     </>
