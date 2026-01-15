@@ -28,7 +28,7 @@ const AdminEmployeesPage = () => {
   );
 
   const [employees, setEmployees] = useState([]);
-  const [search, setSearch] = useState(''); // ✅ nuevo
+  const [search, setSearch] = useState('');
 
   const [roles] = useState([
     { id_role: 2, nombre_rol: 'Administrador' },
@@ -95,7 +95,6 @@ const AdminEmployeesPage = () => {
     });
   };
 
-  // ✅ tu validate() intacto
   const validate = () => {
     const next = {};
 
@@ -133,7 +132,6 @@ const AdminEmployeesPage = () => {
     return Object.keys(next).length === 0;
   };
 
-  // ✅ tu onSubmit() intacto
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
@@ -174,7 +172,6 @@ const AdminEmployeesPage = () => {
     }
   };
 
-  // ✅ tu onDelete() intacto
   const onDelete = async (employee) => {
     const result = await Swal.fire({
       title: '¿Eliminar empleado?',
@@ -206,7 +203,6 @@ const AdminEmployeesPage = () => {
     }
   };
 
-  // ✅ filtrado con búsqueda (ignora acentos / mayúsculas)
   const filteredEmployees = useMemo(() => {
     const q = normalizeText(search);
     if (!q) return employees;
@@ -225,7 +221,7 @@ const AdminEmployeesPage = () => {
 
   return (
     <div className="container-fluid py-4" style={{ maxWidth: 1400 }}>
-      {/* ✅ Encabezado + botón arriba, buscador abajo */}
+      {/* Encabezado + botón arriba, buscador abajo */}
       <EmployeeSearchBar
         title="Gestión de Empleados"
         search={search}
@@ -233,7 +229,7 @@ const AdminEmployeesPage = () => {
         onCreate={openCreate}
       />
 
-      {/* ✅ Card contenedor para la tabla */}
+      {/* Card contenedor para la tabla */}
       <div className="card shadow border-0 rounded-4 w-100">
         <div className="card-body">
           <EmployeesTable

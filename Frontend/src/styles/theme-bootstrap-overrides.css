@@ -1,0 +1,100 @@
+
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f8f9fa;
+  --text: #212529;
+  --muted: #6c757d;
+  --border: rgba(0, 0, 0, 0.12);
+  --input-bg: #ffffff;
+  --input-text: #212529;
+  --input-border: rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme="dark"] {
+  --bg: #0b0f19;
+  --surface: #121826;
+  --surface-2: #0f1523;
+  --text: #e9ecef;
+  --muted: #adb5bd;
+  --border: rgba(255, 255, 255, 0.12);
+  --input-bg: #0f1523;
+  --input-text: #e9ecef;
+  --input-border: rgba(255, 255, 255, 0.16);
+}
+
+html[data-theme="dark"] body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .modal-content {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer {
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] .modal-title {
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%);
+  opacity: 0.85;
+}
+html[data-theme="dark"] .btn-close:hover {
+  opacity: 1;
+}
+
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] textarea {
+  background: var(--input-bg) !important;
+  color: var(--input-text) !important;
+  border-color: var(--input-border) !important;
+}
+
+html[data-theme="dark"] .form-control::placeholder {
+  color: rgba(233, 236, 239, 0.55) !important;
+}
+
+html[data-theme="dark"] .form-control:focus,
+html[data-theme="dark"] .form-select:focus {
+  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.18) !important;
+  border-color: rgba(255, 193, 7, 0.4) !important;
+}
+
+html[data-theme="dark"] .list-group-item {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] .card {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] table,
+html[data-theme="dark"] .table {
+  color: var(--text) !important;
+}
+
+html[data-theme="dark"] .table thead th {
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] .table td,
+html[data-theme="dark"] .table th {
+  border-color: var(--border) !important;
+}
+
+html[data-theme="dark"] .modal-backdrop.show {
+  opacity: 0.75;
+}

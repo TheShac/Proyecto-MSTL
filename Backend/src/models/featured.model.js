@@ -1,6 +1,7 @@
 import { pool } from "../config/db.js";
 
 export const FeaturedModel = {
+  // PUBLIC: destacados vigentes + (si existe) oferta activa vigente
   getPublicFeatured: async (limit = 12) => {
     const [rows] = await pool.query(
       `
@@ -17,11 +18,20 @@ export const FeaturedModel = {
         p.imagen_url,
         p.stock,
 
-        e.nombre_editorial AS editorial
+        e.nombre_editorial AS editorial,
+
+        o.precio_oferta
+
       FROM Producto_Destacado fd
       INNER JOIN Producto p ON p.id_producto = fd.id_producto
       LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto
       LEFT JOIN Editorial e ON pe.id_editorial = e.id_editorial
+
+      LEFT JOIN Producto_Oferta o ON o.id_producto = p.id_producto
+        AND o.activo = 1
+        AND (o.fecha_inicio IS NULL OR o.fecha_inicio <= NOW())
+        AND (o.fecha_fin IS NULL OR o.fecha_fin >= NOW())
+
       WHERE fd.activo = 1
         AND (fd.fecha_inicio IS NULL OR fd.fecha_inicio <= NOW())
         AND (fd.fecha_fin IS NULL OR fd.fecha_fin >= NOW())
@@ -34,6 +44,7 @@ export const FeaturedModel = {
     return rows;
   },
 
+  // ADMIN: lista todos los destacados + info de oferta
   getAdminFeatured: async () => {
     const [rows] = await pool.query(
       `
@@ -44,15 +55,26 @@ export const FeaturedModel = {
         fd.posicion,
         fd.fecha_inicio,
         fd.fecha_fin,
+
         p.nombre,
         p.precio,
         p.imagen_url,
         p.stock,
-        e.nombre_editorial AS editorial
+        e.nombre_editorial AS editorial,
+
+        -- oferta (sin filtrar por vigencia para admin)
+        o.precio_oferta,
+        o.activo AS oferta_activa,
+        o.fecha_inicio AS oferta_inicio,
+        o.fecha_fin AS oferta_fin
+
       FROM Producto_Destacado fd
       INNER JOIN Producto p ON p.id_producto = fd.id_producto
       LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto
       LEFT JOIN Editorial e ON pe.id_editorial = e.id_editorial
+
+      LEFT JOIN Producto_Oferta o ON o.id_producto = p.id_producto
+
       ORDER BY fd.posicion ASC, fd.id_destacado DESC
       `
     );
@@ -86,7 +108,13 @@ export const FeaturedModel = {
           fecha_fin = ?
       WHERE id_producto = ?
       `,
-      [posicion ?? null, activo ?? null, fecha_inicio ?? null, fecha_fin ?? null, id_producto]
+      [
+        posicion ?? null,
+        activo ?? null,
+        fecha_inicio ?? null,
+        fecha_fin ?? null,
+        id_producto,
+      ]
     );
     return result.affectedRows > 0;
   },

@@ -18,33 +18,25 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
   const [busy, setBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const disabledIds = useMemo(
-    () => new Set(items.map((x) => x.id_producto)),
-    [items]
-  );
+  const disabledIds = useMemo(() => new Set(items.map((x) => x.id_producto)), [items]);
 
   const loadFeatured = async () => {
     setErrorMsg("");
     try {
       const res = await getFeaturedAdmin(token);
-      if (res?.success) {
-        setItems(res.data || []);
-      } else {
-        setErrorMsg("Error cargando destacados.");
-      }
+      if (res?.success) setItems(res.data || []);
+      else setErrorMsg("Error cargando destacados.");
     } catch (e) {
       console.error(e);
       setErrorMsg("Error cargando destacados.");
     }
   };
 
-  // ✅ abrir/cargar
   useEffect(() => {
     if (show) loadFeatured();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, token]);
 
-  // ✅ bloquear scroll del body + ESC para cerrar
   useEffect(() => {
     if (!show) return;
 
@@ -69,14 +61,11 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
     onClose?.();
   };
 
-  // ✅ helper: persistir orden
   const persistOrder = async (newItems) => {
     const payload = newItems.map((it, idx) => ({
       id_producto: it.id_producto,
       posicion: idx + 1,
     }));
-
-    // tu endpoint: PUT /api/featured/reorder { items: [...] }
     await reorderFeatured(payload, token);
   };
 
@@ -84,15 +73,7 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
     if (busy) return;
     try {
       setBusy(true);
-
-      await addFeatured(
-        {
-          id_producto: p.id_producto,
-          activo: 1,
-        },
-        token
-      );
-
+      await addFeatured({ id_producto: p.id_producto, activo: 1 }, token);
       await loadFeatured();
     } catch (e) {
       console.error(e);
@@ -120,11 +101,7 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
     if (busy) return;
     try {
       setBusy(true);
-      await updateFeatured(
-        item.id_producto,
-        { activo: item.activo ? 0 : 1 },
-        token
-      );
+      await updateFeatured(item.id_producto, { activo: item.activo ? 0 : 1 }, token);
       await loadFeatured();
     } catch (e) {
       console.error(e);
@@ -139,8 +116,6 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
 
     const newItems = [...items];
     [newItems[idx - 1], newItems[idx]] = [newItems[idx], newItems[idx - 1]];
-
-    // optimista
     setItems(newItems);
 
     try {
@@ -161,8 +136,6 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
 
     const newItems = [...items];
     [newItems[idx], newItems[idx + 1]] = [newItems[idx + 1], newItems[idx]];
-
-    // optimista
     setItems(newItems);
 
     try {
@@ -178,11 +151,8 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
     }
   };
 
-  // ✅ drag reorder (viene desde FeaturedSelectedList)
   const handleReorderDrag = async (newItems) => {
     if (busy) return;
-
-    // optimista
     setItems(newItems);
 
     try {
@@ -202,7 +172,6 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
 
   const modalUI = (
     <>
-      {/* Backdrop */}
       <div
         onClick={handleClose}
         style={{
@@ -213,7 +182,6 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
         }}
       />
 
-      {/* Modal wrapper */}
       <div
         role="dialog"
         aria-modal="true"
@@ -227,19 +195,18 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
           padding: "1rem",
         }}
       >
-        {/* Modal box */}
+        {/* ✅ en vez de bg-white, usamos modal-content para que el CSS dark lo tome */}
         <div
-          className="bg-white rounded-4 shadow"
+          className="modal-content rounded-4 shadow"
           onClick={(e) => e.stopPropagation()}
           style={{
             width: "min(1200px, 100%)",
             maxHeight: "85vh",
             display: "flex",
             flexDirection: "column",
-            overflow: "hidden", // ✅ evita scroll horizontal raro
+            overflow: "hidden",
           }}
         >
-          {/* Header */}
           <div className="p-3 border-bottom d-flex justify-content-between align-items-start">
             <div>
               <h5 className="fw-bold m-0">Gestionar Productos Destacados</h5>
@@ -248,22 +215,10 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
               </div>
             </div>
 
-            <button
-              type="button"
-              className="btn-close"
-              onClick={handleClose}
-              disabled={busy}
-            />
+            <button type="button" className="btn-close" onClick={handleClose} disabled={busy} />
           </div>
 
-          {/* Body */}
-          <div
-            className="p-3"
-            style={{
-              overflowY: "auto",
-              overflowX: "hidden", // ✅ clave
-            }}
-          >
+          <div className="p-3" style={{ overflowY: "auto", overflowX: "hidden" }}>
             {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
 
             <div className="row g-4">
@@ -293,23 +248,12 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
             </div>
           </div>
 
-          {/* Footer */}
           <div className="p-3 border-top d-flex justify-content-end gap-2">
-            <button
-              className="btn btn-outline-secondary"
-              type="button"
-              onClick={handleClose}
-              disabled={busy}
-            >
+            <button className="btn btn-outline-secondary" type="button" onClick={handleClose} disabled={busy}>
               Cerrar
             </button>
 
-            <button
-              className="btn btn-dark"
-              type="button"
-              onClick={loadFeatured}
-              disabled={busy}
-            >
+            <button className="btn btn-dark" type="button" onClick={loadFeatured} disabled={busy}>
               <i className="bi bi-arrow-clockwise me-2" />
               Refrescar
             </button>

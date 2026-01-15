@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../stores/AuthContext';
 import SidebarMenu from './SidebarMenu';
 import AuthModal from './AuthModal';
+import ThemeToggle from '../components/ThemeToggle';
 import './Styles/Navbar.css';
 
 const Navbar = () => {
@@ -13,7 +14,6 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [cartCount] = useState(0);
 
-  // ✅ modal
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [mode, setMode] = useState('login');
 
@@ -53,16 +53,28 @@ const Navbar = () => {
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm px-4 py-2">
         <div className="container-fluid">
-          <Link to="/" className="navbar-brand fw-bold text-dark d-flex align-items-center gap-2" style={{ overflow: "visible" }}>
+          <Link
+            to="/"
+            className="navbar-brand fw-bold text-dark d-flex align-items-center gap-2"
+            style={{ overflow: "visible" }}
+          >
             <img
               src="/logo.png"
               alt="Logo Manga Store TL"
-              style={{ width: "100px", height: "100px", objectFit: "contain", display: "block", }}
+              style={{
+                width: "100px",
+                height: "100px",
+                objectFit: "contain",
+                display: "block",
+              }}
             />
             <span className="fw-bold text-dark fs-4 mb-0">Manga Store TL</span>
           </Link>
 
           <div className="ms-auto d-flex align-items-center gap-3">
+            {/* ✅ MODO OSCURO/CLARO */}
+            <ThemeToggle />
+
             <button className="btn btn-outline-dark" onClick={toggleMenu}>
               <i className="bi bi-list"></i> Menú
             </button>
@@ -87,7 +99,6 @@ const Navbar = () => {
               </>
             ) : (
               <div className="position-relative" ref={dropdownRef}>
-                {/* ✅ Botón Mi cuenta PRO */}
                 <button
                   className="btn btn-outline-dark d-flex align-items-center gap-2 px-3"
                   onClick={toggleDropdown}
@@ -97,7 +108,6 @@ const Navbar = () => {
                   <i className="bi bi-chevron-down small"></i>
                 </button>
 
-                {/* ✅ Dropdown PRO */}
                 {dropdownOpen && (
                   <div className="dropdown-custom-menu">
                     <Link

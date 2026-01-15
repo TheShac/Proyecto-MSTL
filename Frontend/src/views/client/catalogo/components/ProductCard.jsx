@@ -1,33 +1,32 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { formatPrice } from "../utils/formatPrice";
+import { formatPrice, hasOffer, getDiscountPercent } from "../../../client/utils/formatPrice";
 import placeholderImg from "../../../../assets/images/error-icon.jpg";
 
 const ProductCard = ({ product }) => {
-  const isUnavailable = product.estado === "no_disponible" || Number(product.stock) <= 0;
+  const unavailableByState =
+    String(product?.estado || "").toLowerCase() === "no_disponible";
+  const unavailableByStock = Number(product?.stock) <= 0;
+  const isUnavailable = unavailableByState || unavailableByStock;
 
   const imageSrc =
-    product.imagen_url && product.imagen_url.trim() !== ""
+    product?.imagen_url && String(product.imagen_url).trim() !== ""
       ? product.imagen_url
       : placeholderImg;
 
-  const hasOffer = product.precio_oferta !== null && product.precio_oferta !== undefined;
-
-  const discountPct =
-  hasOffer && Number(product.precio) > 0
-    ? Math.round((1 - Number(product.precio_oferta) / Number(product.precio)) * 100)
-    : null;
+  const offer = hasOffer(product);
+  const discountPct = getDiscountPercent(product);
 
   return (
     <div className="card h-100 shadow-sm border-0 position-relative">
-      {/* ✅ Badge Oferta */}
-      {hasOffer && (
+      {/* Badge descuento */}
+      {offer && (
         <span className="badge bg-danger position-absolute top-0 start-0 m-2">
-          OFERTA
+          {discountPct ? `-${discountPct}%` : "OFERTA"}
         </span>
       )}
 
-      {/* ✅ Imagen clickeable */}
+      {/* Imagen clickeable */}
       <Link to={`/catalogo/${product.id_producto}`} className="text-decoration-none">
         <img
           src={imageSrc}
@@ -35,7 +34,7 @@ const ProductCard = ({ product }) => {
           alt={product.nombre}
           style={{ height: "300px", objectFit: "cover" }}
           onError={(e) => {
-            e.target.src = placeholderImg;
+            e.currentTarget.src = placeholderImg;
           }}
         />
       </Link>
@@ -59,8 +58,7 @@ const ProductCard = ({ product }) => {
         <p className="text-muted small mb-1">{product.editorial}</p>
         <h6 className="fw-semibold text-truncate">{product.nombre}</h6>
 
-        {/* ✅ Precios */}
-        {hasOffer ? (
+        {offer ? (
           <div className="mt-2">
             <div className="text-muted text-decoration-line-through small">
               {formatPrice(product.precio)}

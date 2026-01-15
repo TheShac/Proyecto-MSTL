@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Layouts
-import Navbar from '../components/Navbar';
 import AdminLayout from '../layouts/AdminLayout';
 import ClientLayout from "../layouts/ClientLayout";
 
@@ -52,7 +51,6 @@ const AppRouter = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Route>
-      
 
       {/* ✅ CALLBACK GOOGLE */}
       <Route path="/auth/google/success" element={<GoogleSuccess />} />
