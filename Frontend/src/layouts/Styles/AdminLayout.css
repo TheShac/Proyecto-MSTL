@@ -2,7 +2,8 @@
   display: flex;
   overflow-x: hidden;
   height: 100vh;
-  background-color: #f8f9fa;
+  background: var(--app-bg);
+  color: var(--app-text);
 }
 
 #sidebar-wrapper {
@@ -22,6 +23,8 @@
   width: 100%;
   min-width: 0;
   overflow-y: auto;
+  background: var(--app-bg);
+  color: var(--app-text);
 }
 
 @media (max-width: 767.98px) {
