@@ -208,8 +208,8 @@ export const checkoutCart = async (req, res) => {
     const uuid_customer = req.user.id;
     const { metodo_entrega } = req.body;
 
-    if (!metodo_entrega || !["retiro", "envio"].includes(metodo_entra)) {
-      return res.status(400).json({ message: "metodo_entra inválido. Use retiro o envio." });
+    if (!metodo_entrega || !["retiro", "envio"].includes(metodo_entrega)) {
+      return res.status(400).json({ message: "metodo_entrega inválido. Use retiro o envio." });
     }
 
     const cart = await OrderCustomerModel.findCartByCustomer(uuid_customer);

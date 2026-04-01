@@ -3,47 +3,54 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
-
 import passport from 'passport';
 
-import userRoutes from './routes/user.routes.js';
-import authRoutes from './routes/auth.routes.js';
 import './config/passport.js';
-
-import productRoutes from './routes/product.routes.js';
-import employeeRouter from './routes/employee.routes.js'
-import catalogoRouter from './routes/catalogo.routes.js';
-import inventoryRoutes from './routes/products/inventory.routes.js';
-import profileRoutes from "./routes/employee/profile.routes.js";
-import orderRoutes from './routes/orders/order.routes.js';
-import orderCustomerRoutes from './routes/orders/orders.customer.routes.js';
-import ordersGuestRoutes from "./routes/orders/orders.guest.routes.js";
-import featuredRoutes from "./routes/featured.routes.js";
-import offerRoutes from "./routes/products/offers.routes.js";
-
+import router from './routes/index.routes.js';
+import { generalLimiter } from './Middlewares/rateLimit.middleware.js';
+import { sanitize }       from './Middlewares/sanitize.middleware.js';
 
 dotenv.config();
 
 const app = express();
 
+// ── CORS ──────────────────────────────────────────────────────────────────────
+const allowedOrigins = process.env.FRONTEND_URL.split(',').map((o) => o.trim()).filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Permite requests sin origin (Postman, mobile apps, server-to-server)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origen no permitido por CORS: ${origin}`));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+}));
+
+// ── Seguridad ─────────────────────────────────────────────────────────────────
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc:  ["'self'"],
+      styleSrc:   ["'self'"],
+      imgSrc:     ["'self'", 'data:', 'https:'],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
+// ── General ───────────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
-app.use(cors());
-app.use(helmet());
 app.use(morgan('dev'));
 app.use(passport.initialize());
+app.use(generalLimiter);
+app.use(sanitize);
 
-app.use('/api/auth', userRoutes);
-app.use('/api/auth', authRoutes);
-
-app.use('/api/products', productRoutes);
-app.use('/api/employees', employeeRouter);
-app.use('/api/catalogo', catalogoRouter);
-app.use('/api/inventory', inventoryRoutes);
-app.use("/api/profile", profileRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/orders', orderCustomerRoutes);
-app.use("/api/orders", ordersGuestRoutes);
-app.use("/api/featured", featuredRoutes);
-app.use("/api/offers", offerRoutes);
+// Rutas
+app.use('/api', router);
 
 export default app;
