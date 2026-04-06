@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { verifyToken, requireRole } from '../../Middlewares/auth.middleware.js';
 
-import productRoutes   from '../../modules/products/core/routes/product.routes.js';
+import { productAdminRoutes }   from '../../modules/products/core/routes/product.routes.js';
 import inventoryRoutes from '../../modules/products/inventory/routes/inventory.routes.js';
 import catalogoRoutes  from '../../modules/products/catalog/routes/catalogo.routes.js';
 import offersRoutes    from '../../modules/products/offers/routes/offers.routes.js';
@@ -22,7 +22,7 @@ const ADMIN_ROLES = ['stl_administrador', 'stl_superadministrador'];
 router.use(verifyToken);
 
 // ── Rutas accesibles a cualquier empleado ─────────────────────────────────────
-router.use('/products',   requireRole('employee'), productRoutes);
+router.use('/products',   requireRole('employee'), productAdminRoutes);
 router.use('/inventory',  requireRole('employee'), inventoryRoutes);
 router.use('/catalogo',   requireRole('employee'), catalogoRoutes);
 router.use('/profile',    requireRole('employee'), profileRoutes);

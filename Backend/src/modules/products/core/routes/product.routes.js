@@ -8,14 +8,16 @@ import {
   getCatalog,
 } from '../controllers/product.controller.js';
 
-const router = Router();
+// ── Rutas públicas — lectura ──────────────────────────────────────────────────
+export const productPublicRoutes = Router();
 
-// Montadas bajo /api/admin/products
-router.get('/',           getAllProducts);
-router.get('/catalog',    getCatalog);
-router.get('/:id',        getProductById);
-router.post('/',          createProduct);
-router.put('/:id',        updateProduct);
-router.delete('/:id',     deleteProduct);
+productPublicRoutes.get('/',         getAllProducts);
+productPublicRoutes.get('/catalog',  getCatalog);
+productPublicRoutes.get('/:id',      getProductById);
 
-export default router;
+// ── Rutas admin — escritura ───────────────────────────────────────────────────
+export const productAdminRoutes = Router();
+
+productAdminRoutes.post('/',      createProduct);
+productAdminRoutes.put('/:id',    updateProduct);
+productAdminRoutes.delete('/:id', deleteProduct);
