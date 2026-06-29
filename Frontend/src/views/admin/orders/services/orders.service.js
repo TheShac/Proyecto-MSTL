@@ -1,31 +1,16 @@
-import axios from "axios";
+import api from "../../../../services/api";
 
-const API = "http://localhost:3000/api/orders";
+// Montado en el backend bajo /api/admin/orders
+const BASE = "/admin/orders";
 
 export const ordersService = {
-  // GET /api/orders
-  list: async (token) => {
-    const res = await axios.get(`${API}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data; // { success, data: [...] }
-  },
+  // GET /api/admin/orders → { success, data: [...] }
+  list: () => api.get(BASE),
 
-  // GET /api/orders/:id
-  getById: async (uuid_pedido, token) => {
-    const res = await axios.get(`${API}/${uuid_pedido}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data; // { success, data: { order, items, address } }
-  },
+  // GET /api/admin/orders/:id → { success, data: { order, items, address } }
+  getById: (uuid_pedido) => api.get(`${BASE}/${uuid_pedido}`),
 
-  // PUT /api/orders/:id/status  body: { estado }
-  updateStatus: async (uuid_pedido, estado, token) => {
-    const res = await axios.put(
-      `${API}/${uuid_pedido}/status`,
-      { estado },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    return res.data;
-  },
+  // PATCH /api/admin/orders/:id/status  body: { estado }
+  updateStatus: (uuid_pedido, estado) =>
+    api.patch(`${BASE}/${uuid_pedido}/status`, { estado }),
 };

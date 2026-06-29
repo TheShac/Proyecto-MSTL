@@ -6,6 +6,8 @@ import {
   validatePassword,
   hashPassword,
   signToken,
+  signResetToken,
+  verifyResetToken,
 } from '../services/auth.service.js';
 
 dotenv.config();
@@ -88,6 +90,67 @@ export const registerEmployee = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error en el servidor' });
+  }
+};
+
+// ── Recuperación de contraseña ─────────────────────────────────────────────────
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'El email es obligatorio.' });
+
+  try {
+    const found = await findUserByIdentifier(email);
+
+    // Respuesta genérica: no revelamos si el email existe.
+    if (!found) {
+      return res.json({ success: true, message: 'Si el email existe, te enviamos instrucciones.' });
+    }
+
+    const { user, userType } = found;
+    const id = userType === 'employee' ? user.uuid_emps : user.uuid_customer;
+    const token = signResetToken({ id, userType });
+
+    const base = (process.env.FRONTEND_URL || '').split(',')[0].trim();
+    const resetUrl = `${base}/reset-password?token=${token}`;
+
+    // DEMO: como no hay SMTP configurado, devolvemos el enlace para poder
+    // probar el flujo. En producción esto se enviaría por correo.
+    return res.json({
+      success: true,
+      message: 'Enlace de recuperación generado.',
+      demo: true,
+      resetUrl,
+      token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error en el servidor.' });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token, password } = req.body;
+
+  if (!token || !password)
+    return res.status(400).json({ message: 'Token y nueva contraseña son obligatorios.' });
+  if (String(password).length < 6)
+    return res.status(400).json({ message: 'La contraseña debe tener al menos 6 caracteres.' });
+
+  try {
+    const decoded = verifyResetToken(token);
+    const hashed = await hashPassword(password);
+
+    if (decoded.userType === 'employee') {
+      await EmployeeModel.updatePassword(decoded.id, hashed);
+    } else {
+      await CustomerModel.updatePassword(decoded.id, hashed);
+    }
+
+    res.json({ success: true, message: 'Contraseña actualizada. Ya puedes iniciar sesión.' });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ message: 'El enlace es inválido o expiró.' });
   }
 };
 

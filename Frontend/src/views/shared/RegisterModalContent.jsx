@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { authService } from './services/authService';
 
-const RegisterModalContent = ({ onSuccess, switchToLogin }) => {
+const RegisterModalContent = ({ onSuccess, switchToLogin, hideSwitch = false }) => {
   const [form, setForm] = useState({
     nombre: '',
     apellido: '',
@@ -26,7 +26,7 @@ const RegisterModalContent = ({ onSuccess, switchToLogin }) => {
     setSuccess(null);
 
     try {
-      await axios.post('http://localhost:3000/api/auth/register/customer', form);
+      await authService.register(form);
 
       setSuccess('Registro exitoso. Ahora puedes iniciar sesión.');
 
@@ -35,10 +35,7 @@ const RegisterModalContent = ({ onSuccess, switchToLogin }) => {
         switchToLogin();
       }, 1500);
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          'Error al registrar. Intenta con otro email o usuario.'
-      );
+      setError(err.message || 'Error al registrar. Intenta con otro email o usuario.');
     } finally {
       setIsLoading(false);
     }
@@ -125,12 +122,14 @@ const RegisterModalContent = ({ onSuccess, switchToLogin }) => {
       {error && <div className="alert alert-danger mt-3 small">{error}</div>}
       {success && <div className="alert alert-success mt-3 small">{success}</div>}
 
-      <div className="mt-3 text-center small">
-        ¿Ya tienes cuenta?{' '}
-        <button type="button" className="btn btn-link p-0" onClick={switchToLogin}>
-          Iniciar Sesión
-        </button>
-      </div>
+      {!hideSwitch && (
+        <div className="mt-3 text-center small">
+          ¿Ya tienes cuenta?{' '}
+          <button type="button" className="btn btn-link p-0" onClick={switchToLogin}>
+            Iniciar Sesión
+          </button>
+        </div>
+      )}
     </>
   );
 };

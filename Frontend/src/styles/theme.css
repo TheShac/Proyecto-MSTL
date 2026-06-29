@@ -53,8 +53,3 @@
 :root[data-bs-theme="dark"] a:hover {
   color: #d5ddff;
 }
-
-html[data-theme="dark"] .modal-content {
-  background: #121826 !important;
-  color: #e9ecef !important;
-}

@@ -1,13 +1,27 @@
 import { OrderModel }         from '../models/order.model.js';
 import { OrderCustomerModel } from '../models/orders.customer.model.js';
 import { OrderGuestModel }    from '../models/orders.guest.model.js';
+import { ShippingModel }      from '../../shipping/models/shipping.model.js';
 
 const VALID_STATUSES  = ['pendiente', 'pagado', 'enviado', 'entregado', 'cancelado'];
 const isValidEmail    = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
 
+// Calcula el costo de envío según método y tarifa seleccionada (si aplica).
+const resolveShippingCost = async (metodo_entrega, id_tarifa) => {
+  if (metodo_entrega !== 'envio' || !id_tarifa) return 0;
+  const tarifa = await ShippingModel.findById(Number(id_tarifa));
+  return tarifa ? Number(tarifa.precio) : 0;
+};
+
 // ── Admin ─────────────────────────────────────────────────────────────────────
 
 export const getAllOrders = async () => OrderModel.findAll();
+
+export const getOrderTracking = async (uuid_pedido) => {
+  const tracking = await OrderModel.findTracking(uuid_pedido);
+  if (!tracking) throw { status: 404, message: 'No se encontró un pedido con ese código.' };
+  return tracking;
+};
 
 export const getOrderById = async (id) => {
   const order = await OrderModel.findById(id);
@@ -21,6 +35,21 @@ export const updateOrderStatus = async (id, estado) => {
 
   const ok = await OrderModel.updateStatus(id, estado);
   if (!ok) throw { status: 404, message: 'Pedido no encontrado.' };
+};
+
+// ── Customer orders ─────────────────────────────────────────────────────────
+
+export const getMyOrders = async (uuid_customer) =>
+  OrderCustomerModel.findOrdersByCustomer(uuid_customer);
+
+export const payCustomerOrder = async (uuid_customer, uuid_pedido) => {
+  const ok = await OrderCustomerModel.markOrderPaid(uuid_customer, uuid_pedido);
+  if (!ok) throw { status: 400, message: 'No se pudo procesar el pago. El pedido no existe, no es tuyo o ya fue pagado.' };
+};
+
+export const payGuestOrder = async (uuid_pedido) => {
+  const ok = await OrderGuestModel.markOrderPaid(uuid_pedido);
+  if (!ok) throw { status: 400, message: 'No se pudo procesar el pago. El pedido no existe o ya fue pagado.' };
 };
 
 // ── Customer cart ─────────────────────────────────────────────────────────────
@@ -100,14 +129,15 @@ export const saveShippingAddress = async (uuid_customer, { direccion, ciudad, pa
   return addr;
 };
 
-export const checkoutCustomerCart = async (uuid_customer, { metodo_entrega }) => {
+export const checkoutCustomerCart = async (uuid_customer, { metodo_entrega, id_tarifa }) => {
   if (!metodo_entrega || !['retiro', 'envio'].includes(metodo_entrega))
     throw { status: 400, message: 'metodo_entrega inválido. Use retiro o envio.' };
 
   const cart = await OrderCustomerModel.findCartByCustomer(uuid_customer);
   if (!cart) throw { status: 404, message: 'No hay carrito activo.' };
 
-  return OrderCustomerModel.checkoutCart({ uuid_pedido: cart.uuid_pedido, metodo_entrega, costo_envio: 0 });
+  const costo_envio = await resolveShippingCost(metodo_entrega, id_tarifa);
+  return OrderCustomerModel.checkoutCart({ uuid_pedido: cart.uuid_pedido, metodo_entrega, costo_envio });
 };
 
 // ── Guest cart ────────────────────────────────────────────────────────────────
@@ -179,9 +209,10 @@ export const saveGuestShippingAddress = async (uuid_pedido, { direccion, ciudad,
   return addr;
 };
 
-export const checkoutGuestCart = async (uuid_pedido, { metodo_entrega }) => {
+export const checkoutGuestCart = async (uuid_pedido, { metodo_entrega, id_tarifa }) => {
   if (!metodo_entrega || !['retiro', 'envio'].includes(metodo_entrega))
     throw { status: 400, message: 'metodo_entrega inválido. Use retiro o envio.' };
 
-  return OrderGuestModel.checkoutCart({ uuid_pedido, metodo_entrega, costo_envio: 0 });
+  const costo_envio = await resolveShippingCost(metodo_entrega, id_tarifa);
+  return OrderGuestModel.checkoutCart({ uuid_pedido, metodo_entrega, costo_envio });
 };

@@ -5,6 +5,8 @@ import App from "./App.jsx";
 
 import { AuthProvider } from "./stores/AuthContext.jsx";
 import { ThemeProvider } from "./stores/ThemeContext.jsx";
+import { CartProvider } from "./stores/CartContext.jsx";
+import { WishlistProvider } from "./stores/WishlistContext.jsx";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -12,12 +14,17 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 import "./styles/theme.css";
 import "./styles/theme-bootstrap-overrides.css";
+import "./styles/modal-theme.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <AuthProvider>
       <ThemeProvider>
-        <App />
+        <CartProvider>
+          <WishlistProvider>
+            <App />
+          </WishlistProvider>
+        </CartProvider>
       </ThemeProvider>
     </AuthProvider>
   </BrowserRouter>

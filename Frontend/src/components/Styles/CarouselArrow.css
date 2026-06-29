@@ -1,0 +1,66 @@
+/* Flecha de navegación de carruseles — adaptable a modo claro/oscuro.
+   Los colores salen de las variables de tema de Bootstrap, así que funciona
+   automáticamente con data-bs-theme="light" y "dark". */
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 6;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+
+  transform: translateY(-50%);
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.carousel-arrow--left {
+  left: 0.25rem;
+}
+.carousel-arrow--right {
+  right: 0.25rem;
+}
+
+.carousel-arrow:hover {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #212529;
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+}
+
+.carousel-arrow:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.carousel-arrow:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.45);
+}
+
+.carousel-arrow i {
+  pointer-events: none;
+  font-weight: 700;
+}
+
+/* Sombra un poco más marcada en modo oscuro para despegar del fondo. */
+[data-bs-theme="dark"] .carousel-arrow {
+  background-color: var(--bs-secondary-bg);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+}

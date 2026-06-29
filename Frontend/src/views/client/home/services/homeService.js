@@ -1,15 +1,6 @@
-import axios from "axios";
+import api from "../../../../services/api";
 
-const API_PRODUCTS = "http://localhost:3000/api/products/catalog";
-
-export const getFeaturedProducts = async ({ limit = 16 } = {}) => {
-  const { data } = await axios.get(API_PRODUCTS, {
-    params: {
-      page: 1,
-      limit,
-      sort: "newest",
-    },
+export const getFeaturedProducts = ({ limit = 16 } = {}) =>
+  api.get("/products/catalog", {
+    params: { page: 1, limit, sort: "newest" },
   });
-
-  return data;
-};

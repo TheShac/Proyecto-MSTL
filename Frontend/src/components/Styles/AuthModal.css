@@ -1,0 +1,129 @@
+/* Modal de autenticación de dos columnas (Registro | Login).
+   Hereda el diseño general de modales (modal-theme.css) y le da un look
+   profesional con cabecera de marca, adaptable a claro/oscuro. */
+
+.auth-modal .modal-dialog {
+  max-width: 880px;
+}
+
+.auth-modal .modal-content {
+  max-height: 94vh;
+}
+
+/* Fondo en degradado para que los dos lados se fundan sin línea central. */
+.auth-modal .modal-body {
+  overflow-y: auto;
+  background: linear-gradient(135deg, var(--bs-secondary-bg) 0%, var(--bs-body-bg) 100%);
+}
+
+/* Evita los márgenes negativos del row de Bootstrap que pegan los paneles
+   a los bordes del modal. */
+.auth-modal .modal-body .row {
+  margin: 0;
+}
+
+.auth-modal__close {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  z-index: 5;
+  filter: none !important; /* siempre oscuro sobre la cabecera amarilla */
+  opacity: 0.65;
+}
+.auth-modal__close:hover {
+  opacity: 1;
+}
+
+/* ── Cabecera con acento de marca ──────────────────────────────────────── */
+.auth-modal__header {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.15rem 1.75rem;
+  background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+  color: #1a1d21;
+}
+.auth-modal__logo {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.auth-modal__header small {
+  opacity: 0.85;
+}
+
+/* ── Paneles (transparentes; el fondo lo pone el degradado del body) ───── */
+.auth-modal .auth-pane {
+  padding: 2.5rem 2.75rem;
+  display: flex;
+  flex-direction: column;
+}
+/* El login tiene menos campos: se centra para equilibrar las dos columnas. */
+.auth-modal .auth-pane--login {
+  justify-content: center;
+}
+
+.auth-modal .auth-pane__title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.25rem;
+}
+.auth-modal .auth-pane__title i {
+  font-size: 1.35rem;
+  color: #ff9800;
+}
+.auth-modal .auth-pane h4 {
+  font-size: 1.4rem;
+}
+
+/* ── Campos y botones consistentes y redondeados dentro del modal ──────── */
+.auth-modal .form-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.auth-modal .form-control,
+.auth-modal .form-select {
+  border-radius: 0.7rem;
+  padding: 0.65rem 0.9rem;
+}
+.auth-modal .form-control:focus,
+.auth-modal .form-select:focus {
+  border-color: #ffc107;
+  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.auth-modal .input-group > .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.auth-modal .input-group > .btn {
+  border-radius: 0 0.7rem 0.7rem 0;
+}
+
+/* Espaciado uniforme entre campos (el form de registro usaba mb-2). */
+.auth-modal .auth-pane .mb-2 {
+  margin-bottom: 1rem !important;
+}
+
+.auth-modal .btn-warning {
+  border-radius: 0.7rem;
+  padding: 0.7rem;
+  font-weight: 700;
+  margin-top: 0.35rem;
+}
+.auth-modal .btn-outline-dark {
+  border-radius: 0.7rem;
+  padding: 0.6rem;
+  font-weight: 600;
+}
+
+/* En móvil las columnas se apilan; un pequeño respiro entre ellas. */
+@media (max-width: 767.98px) {
+  .auth-modal .auth-pane {
+    padding: 2rem 1.75rem;
+  }
+}

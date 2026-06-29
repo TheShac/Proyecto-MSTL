@@ -42,6 +42,7 @@ const OffersModal = ({ show, onClose, token }) => {
 
   useEffect(() => {
     if (show) loadOffers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, token]);
 
   const existingOfferIds = useMemo(

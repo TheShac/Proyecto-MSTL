@@ -1,52 +1,21 @@
-import axios from "axios";
+import api from "../../../../../services/api";
 
-const API_FEATURED = "http://localhost:3000/api/featured";
-const API_PRODUCTS = "http://localhost:3000/api/products";
+// Destacados — portal admin: /api/admin/featured
+const BASE = "/admin/featured";
 
-const authHeaders = (token) => ({
-  Authorization: token ? `Bearer ${token}` : "",
-});
+export const getFeaturedAdmin = () => api.get(`${BASE}/admin`);
 
-export const getFeaturedAdmin = async (token) => {
-  const { data } = await axios.get(`${API_FEATURED}/admin`, {
-    headers: authHeaders(token),
-  });
-  return data;
-};
+export const addFeatured = (payload) => api.post(BASE, payload);
 
-export const addFeatured = async (payload, token) => {
-  const { data } = await axios.post(`${API_FEATURED}`, payload, {
-    headers: { ...authHeaders(token), "Content-Type": "application/json" },
-  });
-  return data;
-};
+export const updateFeatured = (id_producto, payload) =>
+  api.put(`${BASE}/${id_producto}`, payload);
 
-export const updateFeatured = async (id_producto, payload, token) => {
-  const { data } = await axios.put(`${API_FEATURED}/${id_producto}`, payload, {
-    headers: { ...authHeaders(token), "Content-Type": "application/json" },
-  });
-  return data;
-};
+export const removeFeatured = (id_producto) => api.del(`${BASE}/${id_producto}`);
 
-export const removeFeatured = async (id_producto, token) => {
-  const { data } = await axios.delete(`${API_FEATURED}/${id_producto}`, {
-    headers: authHeaders(token),
-  });
-  return data;
-};
+export const reorderFeatured = (items) => api.put(`${BASE}/reorder`, { items });
 
-export const reorderFeatured = async (items, token) => {
-  const { data } = await axios.put(
-    `${API_FEATURED}/reorder`,
-    { items },
-    { headers: { ...authHeaders(token), "Content-Type": "application/json" } }
-  );
-  return data;
-};
-
-export const searchProductsForFeatured = async ({ page = 1, limit = 8, search = "" }) => {
-  const { data } = await axios.get(`${API_PRODUCTS}/catalog`, {
+// Buscador del modal — catálogo público
+export const searchProductsForFeatured = ({ page = 1, limit = 8, search = "" }) =>
+  api.get("/products/catalog", {
     params: { page, limit, search, sort: "newest" },
   });
-  return data;
-};

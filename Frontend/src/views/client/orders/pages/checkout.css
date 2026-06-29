@@ -1,0 +1,45 @@
+/* Estilos del checkout (wizard + resumen). Adaptable a claro/oscuro. */
+
+.checkout-steps {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+.checkout-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--bs-secondary-color);
+  font-weight: 600;
+}
+.checkout-step__num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  background: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
+}
+.checkout-step.is-active {
+  color: var(--bs-body-color);
+}
+.checkout-step.is-active .checkout-step__num,
+.checkout-step.is-done .checkout-step__num {
+  background: #ffc107;
+  border-color: #ffc107;
+  color: #212529;
+}
+.checkout-step__sep {
+  color: var(--bs-secondary-color);
+}
+
+/* El resumen queda en flujo normal, alineado con el formulario (sin sticky,
+   que con el navbar fijo provocaba que "flotara" desalineado). */
+
+.checkout-card-form .form-control {
+  letter-spacing: 0.04em;
+}

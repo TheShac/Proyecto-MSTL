@@ -1,8 +1,4 @@
-import axios from "axios";
+import api from "../../../../services/api";
 
-const API_OFFERS = "http://localhost:3000/api/offers";
-
-export const getOffersPublic = async (limit = 12) => {
-  const { data } = await axios.get(API_OFFERS, { params: { limit } });
-  return data; // { success, data }
-};
+export const getOffersPublic = (limit = 12) =>
+  api.get("/offers", { params: { limit } });

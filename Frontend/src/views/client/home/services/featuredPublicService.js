@@ -1,8 +1,3 @@
-import axios from "axios";
+import api from "../../../../services/api";
 
-const API_FEATURED = "http://localhost:3000/api/featured";
-
-export const getFeaturedPublic = async () => {
-  const { data } = await axios.get(API_FEATURED);
-  return data;
-};
+export const getFeaturedPublic = () => api.get("/featured");

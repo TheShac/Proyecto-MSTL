@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { getOffersPublic } from "../services/offersPublicService";
 import ProductCard from "../../catalogo/components/ProductCard";
+import CarouselArrow from "../../../../components/CarouselArrow";
 
 const chunk = (arr, size) => {
   const out = [];
@@ -47,29 +48,23 @@ const OffersCarousel = () => {
   if (!slides.length) return <div className="text-muted py-3">No hay ofertas activas aún.</div>;
 
   return (
-    <div className="position-relative">
-      {/* Flechas negras afuera */}
+    <div
+      className="position-relative"
+      style={{ paddingLeft: "3.5rem", paddingRight: "3.5rem" }}
+    >
+      {/* Flechas de navegación */}
       {slides.length > 1 && (
         <>
-          <button
-            className="btn btn-light border position-absolute top-50 start-0 translate-middle-y"
-            style={{ zIndex: 5, marginLeft: "-18px" }}
-            type="button"
+          <CarouselArrow
+            side="left"
             data-bs-target={`#${carouselId}`}
             data-bs-slide="prev"
-          >
-            <i className="bi bi-chevron-left text-dark" />
-          </button>
-
-          <button
-            className="btn btn-light border position-absolute top-50 end-0 translate-middle-y"
-            style={{ zIndex: 5, marginRight: "-18px" }}
-            type="button"
+          />
+          <CarouselArrow
+            side="right"
             data-bs-target={`#${carouselId}`}
             data-bs-slide="next"
-          >
-            <i className="bi bi-chevron-right text-dark" />
-          </button>
+          />
         </>
       )}
 

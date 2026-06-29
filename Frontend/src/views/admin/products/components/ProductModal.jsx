@@ -1,5 +1,8 @@
 import React from "react";
 import { normalizeNumberInput } from "../utils/formatters";
+import ImageDropzone from "./ImageDropzone";
+
+const RequiredStar = () => <span className="text-danger ms-1">*</span>;
 
 const ProductModal = ({
   show,
@@ -15,8 +18,6 @@ const ProductModal = ({
   onImageUpload,
 }) => {
   if (!show) return null;
-
-  const RequiredStar = () => <span className="text-danger ms-1">*</span>;
 
   const onNumberChange = (field) => (e) => {
     const normalized = normalizeNumberInput(e.target.value);
@@ -36,7 +37,7 @@ const ProductModal = ({
         className="modal-dialog modal-lg modal-dialog-centered"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal-content shadow rounded-4 border-0">
+        <div className="modal-content">
           {/* ✅ Header sin bg-warning fijo */}
           <div className="modal-header">
             <h5 className="modal-title">
@@ -177,21 +178,15 @@ const ProductModal = ({
 
                 <div className="col-12">
                   <label className="form-label fw-semibold">Imagen</label>
-                  <input type="file" accept="image/*" onChange={onImageUpload} />
-                  {form.imagen_url && (
-                    <div className="mt-2">
-                      <img
-                        src={form.imagen_url}
-                        alt="Preview"
-                        style={{ maxWidth: 150, borderRadius: 8 }}
-                      />
-                    </div>
-                  )}
+                  <ImageDropzone
+                    preview={form.imagen_url}
+                    onFile={(file) => onImageUpload({ target: { files: [file] } })}
+                  />
                 </div>
               </div>
             </div>
 
-            <div className="modal-footer border-0">
+            <div className="modal-footer">
               <button
                 type="button"
                 className="btn btn-secondary"

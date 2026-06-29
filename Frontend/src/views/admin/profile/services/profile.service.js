@@ -1,34 +1,14 @@
-import axios from 'axios';
+import api from "../../../../services/api";
 
-const API = 'http://localhost:3000/api/profile';
+// Montado en el backend bajo /api/admin/profile
+const BASE = "/admin/profile";
 
 export const profileService = {
-  me: async (token) => {
-    const res = await axios.get(`${API}/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data;
-  },
+  me: () => api.get(BASE),
 
-  updateMe: async (payload, token) => {
-    const res = await axios.put(`${API}/me`, payload, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data;
-  },
+  updateMe: (payload) => api.put(BASE, payload),
 
-  saveAddress: async (payload, token) => {
-    const res = await axios.put(`${API}/me/address`, payload, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data;
-  },
+  saveAddress: (payload) => api.put(`${BASE}/address`, payload),
 
-  // OJO: tu backend es PATCH /me/password
-  changePassword: async (payload, token) => {
-    const res = await axios.patch(`${API}/me/password`, payload, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data;
-  },
+  changePassword: (payload) => api.patch(`${BASE}/password`, payload),
 };

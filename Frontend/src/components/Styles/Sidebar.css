@@ -3,6 +3,13 @@
   transition: transform 0.25s ease;
 }
 
+/* Fondo uniforme: los items del menú comparten el fondo del panel.
+   !important para ganarle a la regla global de .list-group-item en modo oscuro. */
+.sidebar-panel .list-group,
+.sidebar-panel .list-group-item {
+  background: transparent !important;
+}
+
 .hover-effect {
   cursor: pointer;
 }

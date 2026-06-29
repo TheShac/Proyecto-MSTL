@@ -60,6 +60,7 @@ export default function GoogleSuccess() {
     } else {
       navigate("/", { replace: true });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

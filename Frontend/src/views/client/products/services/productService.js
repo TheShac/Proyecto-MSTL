@@ -1,15 +1,7 @@
-import axios from "axios";
+import api from "../../../../services/api";
 import { buildQueryParams } from "../../catalogo/utils/buildQueryParams";
 
-const API_PRODUCTS = "http://localhost:3000/api/products";
+export const getProductById = (id) => api.get(`/products/${id}`);
 
-export const getProductById = async (id) => {
-  const { data } = await axios.get(`${API_PRODUCTS}/${id}`);
-  return data;
-};
-
-export const getCatalogProducts = async (params) => {
-  const cleanParams = buildQueryParams(params);
-  const { data } = await axios.get(`${API_PRODUCTS}/catalog`, { params: cleanParams });
-  return data;
-};
+export const getCatalogProducts = (params) =>
+  api.get("/products/catalog", { params: buildQueryParams(params) });

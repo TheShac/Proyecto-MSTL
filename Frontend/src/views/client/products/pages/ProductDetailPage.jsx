@@ -8,6 +8,7 @@ import ProductDetailImage from "../components/ProductDetailImage";
 import ProductDetailInfo from "../components/ProductDetailInfo";
 import ProductDetailActions from "../components/ProductDetailActions";
 import ProductRecommendations from "../components/ProductRecommendations";
+import ProductReviews from "../../reviews/components/ProductReviews";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -71,6 +72,10 @@ const ProductDetailPage = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="container pb-5">
+        <ProductReviews productId={product.id_producto} />
       </div>
 
       <div className="container pb-5">

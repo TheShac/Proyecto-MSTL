@@ -5,6 +5,7 @@ import CatalogFilters from "../components/CatalogFilters";
 import CatalogGrid from "../components/CatalogGrid";
 import Pagination from "../components/Pagination";
 import Loading from "../components/Loading";
+import ReviewsCarousel from "../../reviews/components/ReviewsCarousel";
 
 import { getCatalogProducts, getEditorials, getGenres } from "../services/catalogService";
 
@@ -20,6 +21,7 @@ const CustomerCatalogPage = () => {
       minPrice: sp.get("minPrice") || "",
       maxPrice: sp.get("maxPrice") || "",
       sort: sp.get("sort") || "newest",
+      onlyOffers: sp.get("onlyOffers") === "true",
     };
   }, [location.search]);
 
@@ -77,6 +79,7 @@ const CustomerCatalogPage = () => {
 
   useEffect(() => {
     fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, page]);
 
   const fetchProducts = async () => {
@@ -140,6 +143,8 @@ const CustomerCatalogPage = () => {
           <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </>
       )}
+
+      <ReviewsCarousel />
     </div>
   );
 };

@@ -84,7 +84,10 @@ export const ProductModel = {
 
         po.activo AS oferta_activa,
         po.fecha_inicio AS oferta_inicio,
-        po.fecha_fin AS oferta_fin
+        po.fecha_fin AS oferta_fin,
+
+        (SELECT ROUND(AVG(rs.calificacion), 1) FROM Reseña_STL rs WHERE rs.id_producto = p.id_producto) AS rating_promedio,
+        (SELECT COUNT(*) FROM Reseña_STL rs WHERE rs.id_producto = p.id_producto) AS rating_total
 
       FROM Producto p
       LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto
@@ -287,7 +290,9 @@ export const ProductModel = {
         p.stock,
         e.nombre_editorial AS editorial,
         g.nombre_genero AS genero,
-        o.precio_oferta
+        o.precio_oferta,
+        (SELECT ROUND(AVG(rs.calificacion), 1) FROM Reseña_STL rs WHERE rs.id_producto = p.id_producto) AS rating_promedio,
+        (SELECT COUNT(*) FROM Reseña_STL rs WHERE rs.id_producto = p.id_producto) AS rating_total
       FROM Producto p
       LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto
       LEFT JOIN Editorial e ON pe.id_editorial = e.id_editorial

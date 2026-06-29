@@ -1,100 +1,104 @@
+/* =========================================================================
+   Overrides de modo oscuro.
 
-:root {
-  --bg: #ffffff;
-  --surface: #ffffff;
-  --surface-2: #f8f9fa;
-  --text: #212529;
-  --muted: #6c757d;
-  --border: rgba(0, 0, 0, 0.12);
-  --input-bg: #ffffff;
-  --input-text: #212529;
-  --input-border: rgba(0, 0, 0, 0.2);
+   ThemeContext aplica  data-bs-theme="dark"  sobre <html>, lo que activa el
+   modo oscuro NATIVO de Bootstrap 5.3 (cards, modales, tablas, inputs,
+   dropdowns, list-groups, .text-muted, bordes... se adaptan solos).
+
+   Bootstrap NO adapta las utilidades de color "fijas" (bg-white, bg-light,
+   text-dark, btn-outline-dark...) ni los componentes con color hardcodeado.
+   Eso es lo que se corrige aquí.
+
+   IMPORTANTE: el selector debe ser [data-bs-theme="dark"] (no data-theme).
+   ========================================================================= */
+
+[data-bs-theme="dark"] {
+  color-scheme: dark;
 }
 
-html[data-theme="dark"] {
-  --bg: #0b0f19;
-  --surface: #121826;
-  --surface-2: #0f1523;
-  --text: #e9ecef;
-  --muted: #adb5bd;
-  --border: rgba(255, 255, 255, 0.12);
-  --input-bg: #0f1523;
-  --input-text: #e9ecef;
-  --input-border: rgba(255, 255, 255, 0.16);
+/* ── Fondos fijos ──────────────────────────────────────────────────────── */
+[data-bs-theme="dark"] .bg-white {
+  background-color: var(--bs-secondary-bg) !important;
+}
+[data-bs-theme="dark"] .bg-light {
+  background-color: var(--bs-tertiary-bg) !important;
 }
 
-html[data-theme="dark"] body {
-  background: var(--bg);
-  color: var(--text);
+/* ── Texto fijo ────────────────────────────────────────────────────────── */
+[data-bs-theme="dark"] .text-dark,
+[data-bs-theme="dark"] .text-black {
+  color: var(--bs-body-color) !important;
 }
 
-html[data-theme="dark"] .modal-content {
-  background: var(--surface) !important;
-  color: var(--text) !important;
-  border: 1px solid var(--border) !important;
+/* ── Bordes claros usados como adorno ──────────────────────────────────── */
+[data-bs-theme="dark"] .border,
+[data-bs-theme="dark"] .border-top,
+[data-bs-theme="dark"] .border-bottom,
+[data-bs-theme="dark"] .border-start,
+[data-bs-theme="dark"] .border-end {
+  border-color: var(--bs-border-color) !important;
 }
 
-html[data-theme="dark"] .modal-header,
-html[data-theme="dark"] .modal-footer {
-  border-color: var(--border) !important;
+/* ── Navbar (usa .bg-light + .navbar-light, no se adapta solo) ─────────── */
+[data-bs-theme="dark"] .navbar.bg-light {
+  background-color: var(--bs-secondary-bg) !important;
+}
+[data-bs-theme="dark"] .navbar-brand,
+[data-bs-theme="dark"] .navbar-brand span {
+  color: var(--bs-body-color) !important;
 }
 
-html[data-theme="dark"] .modal-title {
-  color: var(--text) !important;
+/* ── Botón outline-dark: queda invisible sobre fondo oscuro ────────────── */
+[data-bs-theme="dark"] .btn-outline-dark {
+  --bs-btn-color: var(--bs-body-color);
+  --bs-btn-border-color: var(--bs-border-color);
+  --bs-btn-hover-color: #000;
+  --bs-btn-hover-bg: var(--bs-body-color);
+  --bs-btn-hover-border-color: var(--bs-body-color);
+  --bs-btn-active-color: #000;
+  --bs-btn-active-bg: var(--bs-body-color);
+  --bs-btn-active-border-color: var(--bs-body-color);
 }
 
-html[data-theme="dark"] .btn-close {
-  filter: invert(1) grayscale(100%);
-  opacity: 0.85;
-}
-html[data-theme="dark"] .btn-close:hover {
-  opacity: 1;
-}
-
-html[data-theme="dark"] .form-control,
-html[data-theme="dark"] .form-select,
-html[data-theme="dark"] textarea {
-  background: var(--input-bg) !important;
-  color: var(--input-text) !important;
-  border-color: var(--input-border) !important;
-}
-
-html[data-theme="dark"] .form-control::placeholder {
-  color: rgba(233, 236, 239, 0.55) !important;
+/* ── Botón sólido dark: se confunde con el fondo oscuro ────────────────── */
+/* Se aclara y se le añade borde para que destaque (mantiene texto claro,
+   así .text-white sobre él sigue siendo legible). */
+[data-bs-theme="dark"] .btn-dark {
+  --bs-btn-bg: #343a40;
+  --bs-btn-border-color: rgba(255, 255, 255, 0.25);
+  --bs-btn-color: #f8f9fa;
+  --bs-btn-hover-bg: #424a52;
+  --bs-btn-hover-border-color: rgba(255, 255, 255, 0.4);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: #2b3035;
+  --bs-btn-active-border-color: rgba(255, 255, 255, 0.4);
+  --bs-btn-active-color: #fff;
 }
 
-html[data-theme="dark"] .form-control:focus,
-html[data-theme="dark"] .form-select:focus {
-  box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.18) !important;
-  border-color: rgba(255, 193, 7, 0.4) !important;
+/* ── Dropdown "Mi cuenta" del Navbar (color fijo en Navbar.css) ────────── */
+[data-bs-theme="dark"] .dropdown-custom-menu {
+  background: var(--bs-secondary-bg);
+  border-color: var(--bs-border-color);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+[data-bs-theme="dark"] .dropdown-custom-item {
+  color: var(--bs-body-color);
+}
+[data-bs-theme="dark"] .dropdown-custom-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+[data-bs-theme="dark"] .dropdown-custom-divider {
+  border-top-color: var(--bs-border-color);
 }
 
-html[data-theme="dark"] .list-group-item {
-  background: var(--surface-2) !important;
-  color: var(--text) !important;
-  border-color: var(--border) !important;
+/* ── Sidebar de autenticación (panel lateral con .bg-white) ────────────── */
+[data-bs-theme="dark"] .sidebar-panel {
+  background-color: var(--bs-secondary-bg) !important;
+  color: var(--bs-body-color);
 }
 
-html[data-theme="dark"] .card {
-  background: var(--surface) !important;
-  color: var(--text) !important;
-  border-color: var(--border) !important;
-}
-
-html[data-theme="dark"] table,
-html[data-theme="dark"] .table {
-  color: var(--text) !important;
-}
-
-html[data-theme="dark"] .table thead th {
-  border-color: var(--border) !important;
-}
-
-html[data-theme="dark"] .table td,
-html[data-theme="dark"] .table th {
-  border-color: var(--border) !important;
-}
-
-html[data-theme="dark"] .modal-backdrop.show {
-  opacity: 0.75;
+/* ── SweetAlert2 ───────────────────────────────────────────────────────── */
+[data-bs-theme="dark"] .swal2-popup {
+  background: var(--bs-secondary-bg) !important;
+  color: var(--bs-body-color) !important;
 }

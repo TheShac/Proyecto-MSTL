@@ -24,6 +24,17 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // Patrones legítimos de "sincronizar estado desde props / reset al
+      // abrir/cerrar". Regla advisory desactivada para este proyecto.
+      'react-hooks/set-state-in-effect': 'off',
+    },
+  },
+  {
+    // Los contextos exportan un hook (useX) junto al Provider: patrón estándar
+    // de React. La regla de fast-refresh no aplica aquí.
+    files: ['**/stores/*.jsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
     },
   },
 ])

@@ -1,5 +1,40 @@
 import { pool } from "../../../config/db.js";
 
+// Devuelve el precio efectivo: usa la oferta si es válida (>0 y menor al precio).
+const resolveUnitPrice = (row) => {
+  const base = Number(row.precio ?? 0);
+  const offer = row.precio_oferta != null ? Number(row.precio_oferta) : null;
+  return offer != null && offer > 0 && offer < base ? offer : base;
+};
+
+// Valida stock disponible y lo descuenta para cada item del pedido.
+// Debe ejecutarse dentro de la transacción de checkout (conn).
+export const descontarStock = async (conn, uuid_pedido) => {
+  const [detItems] = await conn.query(
+    `SELECT dp.id_producto, dp.cantidad, p.stock, p.nombre
+     FROM Detalle_Pedido dp
+     JOIN Producto p ON p.id_producto = dp.id_producto
+     WHERE dp.uuid_pedido = ?
+     FOR UPDATE`,
+    [uuid_pedido]
+  );
+
+  for (const it of detItems) {
+    if (Number(it.cantidad) > Number(it.stock)) {
+      const err = new Error(`Stock insuficiente para "${it.nombre}". Disponible: ${it.stock}.`);
+      err.status = 400;
+      throw err;
+    }
+  }
+
+  for (const it of detItems) {
+    await conn.query(
+      `UPDATE Producto SET stock = stock - ? WHERE id_producto = ?`,
+      [it.cantidad, it.id_producto]
+    );
+  }
+};
+
 export const OrderCustomerModel = {
   // Buscar carrito actual del cliente
   findCartByCustomer: async (uuid_customer) => {
@@ -28,6 +63,37 @@ export const OrderCustomerModel = {
     return cart;
   },
 
+  // Marca un pedido pendiente del cliente como pagado (pago simulado).
+  markOrderPaid: async (uuid_customer, uuid_pedido) => {
+    const [result] = await pool.query(
+      `UPDATE Pedido
+       SET estado = 'pagado'
+       WHERE uuid_pedido = ? AND uuid_customer = ? AND estado = 'pendiente'`,
+      [uuid_pedido, uuid_customer]
+    );
+    return result.affectedRows > 0;
+  },
+
+  // Historial de pedidos del cliente (todo lo que ya no es carrito)
+  findOrdersByCustomer: async (uuid_customer) => {
+    const [rows] = await pool.query(
+      `SELECT
+        p.uuid_pedido,
+        p.fecha_pedido,
+        p.estado,
+        p.precio,
+        p.metodo_entrega,
+        COUNT(dp.id_detalle_pedido) AS items
+      FROM Pedido p
+      LEFT JOIN Detalle_Pedido dp ON p.uuid_pedido = dp.uuid_pedido
+      WHERE p.uuid_customer = ? AND p.estado <> 'carrito'
+      GROUP BY p.uuid_pedido
+      ORDER BY p.fecha_pedido DESC`,
+      [uuid_customer]
+    );
+    return rows;
+  },
+
   // Obtener items del carrito
   listCartItems: async (uuid_pedido) => {
     const [rows] = await pool.query(
@@ -40,7 +106,8 @@ export const OrderCustomerModel = {
         (dp.cantidad * dp.precio_unitario) AS total_item,
         p.nombre,
         p.imagen_url,
-        p.stock
+        p.stock,
+        p.precio AS precio_original
       FROM Detalle_Pedido dp
       LEFT JOIN Producto p ON dp.id_producto = p.id_producto
       WHERE dp.uuid_pedido = ?
@@ -56,11 +123,19 @@ export const OrderCustomerModel = {
     try {
       await conn.beginTransaction();
 
-      // producto existe?
+      // producto existe? (incluye precio de oferta activa si la hay)
       const [prodRows] = await conn.query(
-        `SELECT id_producto, precio, stock
-         FROM Producto
-         WHERE id_producto = ?`,
+        `SELECT p.id_producto, p.precio, p.stock,
+           (SELECT o.precio_oferta
+              FROM Producto_Oferta o
+             WHERE o.id_producto = p.id_producto
+               AND o.activo = 1
+               AND (o.fecha_inicio IS NULL OR o.fecha_inicio <= NOW())
+               AND (o.fecha_fin    IS NULL OR o.fecha_fin    >= NOW())
+             ORDER BY o.updated_at DESC
+             LIMIT 1) AS precio_oferta
+         FROM Producto p
+         WHERE p.id_producto = ?`,
         [id_producto]
       );
       if (prodRows.length === 0) {
@@ -75,7 +150,7 @@ export const OrderCustomerModel = {
           [uuid_pedido, id_producto]
         );
       } else {
-        const precio_unitario = Number(prodRows[0].precio ?? 0);
+        const precio_unitario = resolveUnitPrice(prodRows[0]);
 
         // UNIQUE KEY (uuid_pedido, id_producto)
         await conn.query(
@@ -219,6 +294,9 @@ export const OrderCustomerModel = {
         err.status = 400;
         throw err;
       }
+
+      // Descontar stock validando disponibilidad
+      await descontarStock(conn, uuid_pedido);
 
       // recalcular subtotal y total
       const subtotal = await OrderCustomerModel._recalcOrderSubtotal(conn, uuid_pedido);

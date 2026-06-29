@@ -10,6 +10,8 @@ import {
   registerEmployee,
   getProfile,
   editProfile,
+  forgotPassword,
+  resetPassword,
 } from '../controllers/auth.controller.js';
 import { googleCallback } from '../controllers/googleAuth.controller.js';
 
@@ -18,6 +20,10 @@ const router = Router();
 // ── Credenciales ──────────────────────────────────────────────────────────────
 router.post('/login',    authLimiter, validate(loginSchema),            Login);
 router.post('/register', authLimiter, validate(registerCustomerSchema), registerCustomer);
+
+// ── Recuperación de contraseña ─────────────────────────────────────────────────
+router.post('/forgot-password', authLimiter, forgotPassword);
+router.post('/reset-password',  authLimiter, resetPassword);
 
 // ── Empleados (requiere token — la validación de rol va en el controller) ─────
 router.post('/register/employee', verifyToken, registerEmployee);

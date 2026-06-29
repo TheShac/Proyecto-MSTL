@@ -1,5 +1,6 @@
 import React from "react";
 import { formatPrice, hasOffer, getDiscountPercent } from "../../../client/utils/formatPrice";
+import StarRating from "../../reviews/components/StarRating";
 
 const ProductDetailInfo = ({ product, isUnavailable }) => {
   const offer = hasOffer(product);
@@ -11,7 +12,17 @@ const ProductDetailInfo = ({ product, isUnavailable }) => {
         {product.editorial || "Editorial"}
       </p>
 
-      <h1 className="fw-bold mb-3">{product.nombre}</h1>
+      <h1 className="fw-bold mb-2">{product.nombre}</h1>
+
+      {Number(product.rating_total) > 0 && (
+        <div className="d-flex align-items-center gap-2 mb-3">
+          <StarRating value={product.rating_promedio} />
+          <span className="fw-semibold">{Number(product.rating_promedio).toFixed(1)}</span>
+          <a href="#resenas" className="text-muted small text-decoration-none">
+            ({product.rating_total} reseña{Number(product.rating_total) !== 1 ? "s" : ""})
+          </a>
+        </div>
+      )}
 
       <div className="mb-3">
         {offer ? (

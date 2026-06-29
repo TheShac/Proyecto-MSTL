@@ -42,7 +42,9 @@ export const OfferModel = {
         p.imagen_url,
         p.stock,
         e.nombre_editorial AS editorial,
-        g.nombre_genero AS genero
+        g.nombre_genero AS genero,
+        (SELECT ROUND(AVG(rs.calificacion), 1) FROM Reseña_STL rs WHERE rs.id_producto = p.id_producto) AS rating_promedio,
+        (SELECT COUNT(*) FROM Reseña_STL rs WHERE rs.id_producto = p.id_producto) AS rating_total
       FROM Producto_Oferta o
       INNER JOIN Producto p ON p.id_producto = o.id_producto
       LEFT JOIN Producto_Editorial pe ON p.id_producto = pe.id_producto

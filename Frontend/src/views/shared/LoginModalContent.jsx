@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../stores/AuthContext';
+import { authService } from './services/authService';
 
-const LoginModalContent = ({ onSuccess, switchToRegister }) => {
+const LoginModalContent = ({ onSuccess, switchToRegister, hideSwitch = false }) => {
   const auth = useAuth();
   const navigate = useNavigate();
 
@@ -19,12 +19,9 @@ const LoginModalContent = ({ onSuccess, switchToRegister }) => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/login', {
-        identifier,
-        password,
-      });
+      const data = await authService.login(identifier, password);
 
-      const { token, role, userType, id, username } = response.data;
+      const { token, role, userType, id, username } = data;
 
       auth.login({ accessToken: token, role, userType, id, username });
 
@@ -48,18 +45,14 @@ const LoginModalContent = ({ onSuccess, switchToRegister }) => {
         navigate('/', { replace: true });
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          'Credenciales inválidas. Verifica tus datos.'
-      );
+      setError(err.message || 'Credenciales inválidas. Verifica tus datos.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:3000/api/auth/google';
+    window.location.href = authService.googleLoginUrl();
   };
 
   return (
@@ -123,12 +116,27 @@ const LoginModalContent = ({ onSuccess, switchToRegister }) => {
 
       {error && <div className="alert alert-danger mt-3 small">{error}</div>}
 
-      <div className="mt-3 text-center small">
-        ¿No tienes cuenta?{' '}
-        <button type="button" className="btn btn-link p-0" onClick={switchToRegister}>
-          Crear una
+      <div className="text-center mt-3 small">
+        <button
+          type="button"
+          className="btn btn-link p-0 text-secondary"
+          onClick={() => {
+            onSuccess?.();
+            navigate('/forgot-password');
+          }}
+        >
+          ¿Olvidaste tu contraseña?
         </button>
       </div>
+
+      {!hideSwitch && (
+        <div className="mt-3 text-center small">
+          ¿No tienes cuenta?{' '}
+          <button type="button" className="btn btn-link p-0" onClick={switchToRegister}>
+            Crear una
+          </button>
+        </div>
+      )}
     </>
   );
 };

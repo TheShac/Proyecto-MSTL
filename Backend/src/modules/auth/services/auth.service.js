@@ -19,6 +19,19 @@ export const signToken = (payload) =>
     expiresIn: process.env.JWT_EXPIRES_IN || '3h',
   });
 
+// ── Reset de contraseña ─────────────────────────────────────────────────────
+
+export const signResetToken = (payload) =>
+  jwt.sign({ ...payload, purpose: 'reset' }, process.env.JWT_SECRET, {
+    expiresIn: '30m',
+  });
+
+export const verifyResetToken = (token) => {
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  if (decoded.purpose !== 'reset') throw new Error('Token inválido.');
+  return decoded;
+};
+
 export const findUserByIdentifier = async (identifier) => {
   let user = await CustomerModel.findByEmailOrUsername(identifier);
   if (user) return { user, userType: 'customer' };

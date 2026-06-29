@@ -2,8 +2,8 @@
   display: flex;
   overflow-x: hidden;
   height: 100vh;
-  background: var(--app-bg);
-  color: var(--app-text);
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
 }
 
 #sidebar-wrapper {
@@ -23,8 +23,8 @@
   width: 100%;
   min-width: 0;
   overflow-y: auto;
-  background: var(--app-bg);
-  color: var(--app-text);
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
 }
 
 @media (max-width: 767.98px) {
@@ -39,27 +39,31 @@
   }
 }
 
+/* Las reglas siguientes están acotadas al sidebar admin para que no se
+   filtren al resto de la app (antes afectaban a cualquier list-group y a
+   cualquier .text-secondary del proyecto). */
+
 /* Activo (equivalente a .router-link-active en Vue) */
-.list-group-item.active {
+#sidebar-wrapper .list-group-item.active {
   background-color: #ffc107 !important;
   color: #212529 !important;
 }
 
 /* Estilos de links */
-.list-group-item-action {
+#sidebar-wrapper .list-group-item-action {
   color: rgba(255, 255, 255, 0.8) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-.list-group-item-action:hover:not(.active) {
+#sidebar-wrapper .list-group-item-action:hover:not(.active) {
   color: #ffc107 !important;
   background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
-.sidebar-heading {
+#sidebar-wrapper .sidebar-heading {
   background-color: #ffc107 !important;
 }
 
-.text-secondary {
+#sidebar-wrapper hr.text-secondary {
   border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
 }

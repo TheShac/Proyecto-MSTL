@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, Link, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../stores/AuthContext';
+import ThemeToggle from '../components/ThemeToggle';
 import './Styles/AdminLayout.css';
 
 const AdminLayout = () => {
@@ -107,6 +108,30 @@ const AdminLayout = () => {
           </NavLink>
 
           <NavLink
+            to="/admin/reviews"
+            className={({ isActive }) =>
+              `list-group-item list-group-item-action bg-dark text-white ${
+                isActive ? 'active' : ''
+              }`
+            }
+          >
+            <i className="bi bi-star me-2"></i>
+            Reseñas
+          </NavLink>
+
+          <NavLink
+            to="/admin/shipping"
+            className={({ isActive }) =>
+              `list-group-item list-group-item-action bg-dark text-white ${
+                isActive ? 'active' : ''
+              }`
+            }
+          >
+            <i className="bi bi-truck me-2"></i>
+            Envíos
+          </NavLink>
+
+          <NavLink
             to="/admin/configuration"
             className={({ isActive }) =>
               `list-group-item list-group-item-action bg-dark text-white ${
@@ -154,7 +179,8 @@ const AdminLayout = () => {
           </button>
         </div>
 
-        <div className="p-3">
+        <div className="p-3 d-grid gap-2">
+          <ThemeToggle className="btn btn-outline-light w-100" />
           <Link to="/" className="btn btn-outline-light w-100">
             Ver Tienda
           </Link>

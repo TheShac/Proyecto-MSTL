@@ -30,6 +30,31 @@ export const updateOrderStatus = async (req, res) => {
   } catch (e) { handle(res, e); }
 };
 
+// ── Seguimiento público ───────────────────────────────────────────────────────
+
+export const trackOrder = async (req, res) => {
+  try {
+    const data = await OrderService.getOrderTracking(req.params.uuid_pedido);
+    res.json({ success: true, data });
+  } catch (e) { handle(res, e); }
+};
+
+// ── Customer orders ─────────────────────────────────────────────────────────
+
+export const getMyOrders = async (req, res) => {
+  try {
+    const data = await OrderService.getMyOrders(req.user.id);
+    res.json({ success: true, data });
+  } catch (e) { handle(res, e); }
+};
+
+export const payOrder = async (req, res) => {
+  try {
+    await OrderService.payCustomerOrder(req.user.id, req.params.uuid_pedido);
+    res.json({ success: true, message: 'Pago procesado correctamente.' });
+  } catch (e) { handle(res, e); }
+};
+
 // ── Customer cart ─────────────────────────────────────────────────────────────
 
 export const getMyCart = async (req, res) => {
@@ -122,5 +147,12 @@ export const checkoutGuestCart = async (req, res) => {
   try {
     const data = await OrderService.checkoutGuestCart(req.params.uuid_pedido, req.body);
     res.json({ success: true, message: 'Pedido confirmado (pendiente).', data });
+  } catch (e) { handle(res, e); }
+};
+
+export const payGuestOrder = async (req, res) => {
+  try {
+    await OrderService.payGuestOrder(req.params.uuid_pedido);
+    res.json({ success: true, message: 'Pago procesado correctamente.' });
   } catch (e) { handle(res, e); }
 };

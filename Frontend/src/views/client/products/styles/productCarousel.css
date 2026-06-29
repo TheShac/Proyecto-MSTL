@@ -11,7 +11,7 @@
   height: 10px;
 }
 .product-carousel::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--bs-border-color);
   border-radius: 999px;
 }
 
@@ -21,31 +21,17 @@
   scroll-snap-align: start;
 }
 
-.carousel-nav-btn {
-  position: absolute;
-  top: 38%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.12);
-  background: #fff;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-  display: grid;
-  place-items: center;
-  z-index: 5;
-}
-
-.carousel-nav-btn--left { left: 0; }
-.carousel-nav-btn--right { right: 0; }
+/* Las flechas ahora las provee el componente <CarouselArrow />. */
 
 .carousel-dot {
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: rgba(0,0,0,0.20);
+  background: var(--bs-border-color);
+  transition: all 0.2s ease;
 }
 
 .carousel-dot.active {
-  background: rgba(0,0,0,0.75);
+  width: 26px;
+  background: var(--bs-emphasis-color);
 }

@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import FeaturedProductsCarousel from "./home/components/FeaturedProductsCarousel";
 import OffersCarousel from "./home/components/OffersCarousel";
+import ReviewsCarousel from "./reviews/components/ReviewsCarousel";
 
 const Dashboard = () => {
   return (
@@ -17,7 +18,7 @@ const Dashboard = () => {
           <Link to="/catalogo" className="btn btn-dark btn-lg px-4 me-sm-3 fw-bold">
             Ver Catálogo
           </Link>
-          <Link to="/ofertas" className="btn btn-outline-secondary btn-lg px-4">
+          <Link to="/catalogo?onlyOffers=true" className="btn btn-outline-secondary btn-lg px-4">
             Ofertas Especiales
           </Link>
         </div>
@@ -36,6 +37,8 @@ const Dashboard = () => {
         <h2 className="h4 border-bottom pb-2 mb-4">Ofertas</h2>
         <OffersCarousel />
       </section>
+
+      <ReviewsCarousel />
     </div>
   );
 };

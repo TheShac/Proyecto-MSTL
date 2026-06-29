@@ -1,360 +1,272 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { authService } from '../shared/services/authService';
+import { ordersCustomerService } from './orders/services/orders.customer.service';
+import { addressService } from './services/addressService';
+import { useAuth } from '../../stores/AuthContext';
+import { useWishlist } from '../../stores/WishlistContext';
+import { useCart } from '../../stores/CartContext';
+import { formatPrice, hasOffer } from './utils/formatPrice';
+
+const ORDER_STATUS = {
+  pendiente: { label: 'Pendiente', cls: 'text-bg-warning' },
+  pagado: { label: 'Pagado', cls: 'text-bg-info' },
+  enviado: { label: 'Enviado', cls: 'text-bg-primary' },
+  entregado: { label: 'Entregado', cls: 'text-bg-success' },
+  cancelado: { label: 'Cancelado', cls: 'text-bg-danger' },
+};
 
 const Profile = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const auth = useAuth();
+  const wishlist = useWishlist();
+  const { addToCart } = useCart();
 
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
+
+  useEffect(() => {
+    const t = searchParams.get('tab');
+    if (t) setActiveTab(t);
+  }, [searchParams]);
 
   const [profile, setProfile] = useState({
-    nombre: 'Cargando...',
-    apellido: '',
-    stl_email: null,
-    emp_email: null,
-    stl_username: null,
-    emp_username: null,
-    stl_telefono: null,
-    emp_telefono: null,
-    image_profile: null,
-    // Dirección mock
-    address: 'No hay dirección registrada',
-    city: 'N/A',
-    postalCode: 'N/A',
+    nombre: 'Cargando...', apellido: '',
+    stl_email: null, emp_email: null,
+    stl_username: null, emp_username: null,
+    stl_telefono: null, emp_telefono: null,
   });
 
-  const [originalProfile, setOriginalProfile] = useState({});
+  const [form, setForm] = useState({ nombre: '', apellido: '', telefono: '' });
   const [editPersonal, setEditPersonal] = useState(false);
-  const [editAddress, setEditAddress] = useState(false);
+  const [savingPersonal, setSavingPersonal] = useState(false);
+  const [personalMsg, setPersonalMsg] = useState(null);
 
-  // Mock orders
-  const [orders] = useState([
-    { id: '12345', date: '2023-10-26', total: 25000, status: 'Completado' },
-    { id: '12346', date: '2023-10-25', total: 12990, status: 'Pendiente' },
-    { id: '12347', date: '2023-10-20', total: 45000, status: 'Completado' },
-    { id: '12348', date: '2023-10-18', total: 30000, status: 'Completado' },
-    { id: '12349', date: '2023-10-15', total: 18500, status: 'Pendiente' },
-  ]);
+  // Dirección
+  const [addr, setAddr] = useState({ direccion: '', ciudad: '', pais: '', codigo_postal: '' });
+  const [editAddr, setEditAddr] = useState(false);
+  const [savingAddr, setSavingAddr] = useState(false);
+  const [addrMsg, setAddrMsg] = useState(null);
 
-  const [wishlist, setWishlist] = useState([
-    {
-      id: 1,
-      name: 'Manga: One Piece Vol. 1',
-      category: 'Manga / Shonen',
-      price: 12990,
-      image: 'https://picsum.photos/200/300?random=1',
-    },
-    {
-      id: 2,
-      name: 'Figura: Levi Ackerman',
-      category: 'Figura / Ataque Titanes',
-      price: 55000,
-      image: 'https://picsum.photos/200/300?random=2',
-    },
-  ]);
+  // Pedidos
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState(null);
 
-  // editablePhone equivalente al computed de Vue
-  const editablePhone = useMemo(
-    () =>
-      profile.stl_telefono ??
-      profile.emp_telefono ??
-      '',
-    [profile.stl_telefono, profile.emp_telefono]
-  );
+  // Contraseña
+  const [pwd, setPwd] = useState({ nueva: '', repetir: '' });
+  const [pwdMsg, setPwdMsg] = useState(null);
+  const [pwdSaving, setPwdSaving] = useState(false);
 
-  const handlePhoneChange = (e) => {
-    const newValue = e.target.value;
-    setProfile((prev) => {
-      const updated = { ...prev };
+  const email = useMemo(() => profile.stl_email || profile.emp_email || 'N/A', [profile]);
+  const username = useMemo(() => profile.stl_username || profile.emp_username || 'N/A', [profile]);
+  const telefono = useMemo(() => profile.stl_telefono || profile.emp_telefono || 'N/A', [profile]);
 
-      if (prev.stl_telefono !== undefined && prev.stl_telefono !== null) {
-        updated.stl_telefono = newValue;
-      } else if (
-        prev.emp_telefono !== undefined &&
-        prev.emp_telefono !== null
-      ) {
-        updated.emp_telefono = newValue;
-      }
-      // Si ambos son null, podrías decidir dónde guardarlo, por ahora no hace nada especial
-      return updated;
-    });
-  };
+  const isCustomer = auth.userType === 'customer' || !auth.userType;
 
-  const fetchProfileData = async () => {
-    const token = localStorage.getItem('accessToken');
-
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
+  const fetchProfile = async () => {
     try {
-      const response = await axios.get(
-        'http://localhost:3000/api/auth/profile',
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      setProfile((prev) => {
-        const merged = {
-          ...prev, // mantiene address/city/postalCode mock
-          ...response.data,
-        };
-        setOriginalProfile(merged);
-        return merged;
+      const data = await authService.getProfile();
+      setProfile((prev) => ({ ...prev, ...data }));
+      setForm({
+        nombre: data.nombre || '',
+        apellido: data.apellido || '',
+        telefono: data.stl_telefono || data.emp_telefono || '',
       });
     } catch (error) {
       console.error('Error al cargar el perfil:', error);
-      if (error.response?.status === 401) {
-        navigate('/login');
-      }
+      if (error.status === 401) navigate('/login');
     }
   };
 
-  const savePersonal = async () => {
-    // TODO: implementar PUT real al backend
-    alert(
-      'Funcionalidad de guardar datos personales pendiente de conexión al backend.'
-    );
-    setEditPersonal(false);
-  };
-
-  const saveAddress = async () => {
-    // TODO: implementar PUT real al backend
-    alert(
-      'Funcionalidad de guardar dirección pendiente de conexión al backend.'
-    );
-    setEditAddress(false);
-  };
-
-  const cancelEdit = (section) => {
-    if (!originalProfile) return;
-
-    if (section === 'personal') {
-      setProfile((prev) => ({
-        ...prev,
-        nombre: originalProfile.nombre,
-        apellido: originalProfile.apellido,
-        stl_telefono: originalProfile.stl_telefono,
-        emp_telefono: originalProfile.emp_telefono,
-      }));
-      setEditPersonal(false);
-    } else if (section === 'address') {
-      setProfile((prev) => ({
-        ...prev,
-        address: originalProfile.address,
-        city: originalProfile.city,
-        postalCode: originalProfile.postalCode,
-      }));
-      setEditAddress(false);
+  const fetchAddress = async () => {
+    if (!isCustomer) return;
+    try {
+      const res = await addressService.getMine();
+      if (res?.data) setAddr({
+        direccion: res.data.direccion || '',
+        ciudad: res.data.ciudad || '',
+        pais: res.data.pais || '',
+        codigo_postal: res.data.codigo_postal || '',
+      });
+    } catch (error) {
+      console.error('Error al cargar dirección:', error);
     }
   };
 
-  const removeFromWishlist = (itemId) => {
-    setWishlist((prev) => prev.filter((item) => item.id !== itemId));
-    alert('Producto eliminado de tu lista de deseos.');
+  const fetchOrders = async () => {
+    if (!isCustomer) return;
+    setOrdersLoading(true);
+    setOrdersError(null);
+    try {
+      const res = await ordersCustomerService.getOrders();
+      setOrders(res?.data || []);
+    } catch (error) {
+      console.error('Error al cargar pedidos:', error);
+      setOrdersError('No se pudieron cargar tus pedidos.');
+    } finally {
+      setOrdersLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchProfileData();
-
-    // Inicializar originalProfile con los datos de mock de address
-    setOriginalProfile((prev) => ({
-      ...prev,
-      address: profile.address,
-      city: profile.city,
-      postalCode: profile.postalCode,
-    }));
+    if (!localStorage.getItem('accessToken')) {
+      navigate('/login');
+      return;
+    }
+    fetchProfile();
+    fetchAddress();
+    fetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const savePersonal = async () => {
+    setSavingPersonal(true);
+    setPersonalMsg(null);
+    try {
+      await authService.updateProfile({
+        nombre: form.nombre,
+        apellido: form.apellido,
+        telefono: form.telefono,
+      });
+      await fetchProfile();
+      setEditPersonal(false);
+      setPersonalMsg({ type: 'success', text: 'Datos actualizados correctamente.' });
+    } catch (error) {
+      setPersonalMsg({ type: 'danger', text: error.message || 'No se pudo guardar.' });
+    } finally {
+      setSavingPersonal(false);
+    }
+  };
+
+  const saveAddress = async () => {
+    if (!addr.direccion.trim() || !addr.ciudad.trim() || !addr.pais.trim()) {
+      setAddrMsg({ type: 'danger', text: 'Dirección, ciudad y país son obligatorios.' });
+      return;
+    }
+    setSavingAddr(true);
+    setAddrMsg(null);
+    try {
+      await addressService.saveMine(addr);
+      setEditAddr(false);
+      setAddrMsg({ type: 'success', text: 'Dirección guardada.' });
+    } catch (error) {
+      setAddrMsg({ type: 'danger', text: error.message || 'No se pudo guardar la dirección.' });
+    } finally {
+      setSavingAddr(false);
+    }
+  };
+
+  const changePassword = async (e) => {
+    e.preventDefault();
+    setPwdMsg(null);
+    if (pwd.nueva.length < 6) {
+      setPwdMsg({ type: 'danger', text: 'La contraseña debe tener al menos 6 caracteres.' });
+      return;
+    }
+    if (pwd.nueva !== pwd.repetir) {
+      setPwdMsg({ type: 'danger', text: 'Las contraseñas no coinciden.' });
+      return;
+    }
+    setPwdSaving(true);
+    try {
+      await authService.updateProfile({ password: pwd.nueva });
+      setPwd({ nueva: '', repetir: '' });
+      setPwdMsg({ type: 'success', text: 'Contraseña actualizada correctamente.' });
+    } catch (error) {
+      setPwdMsg({ type: 'danger', text: error.message || 'No se pudo cambiar la contraseña.' });
+    } finally {
+      setPwdSaving(false);
+    }
+  };
+
+  const renderStatus = (estado) => {
+    const s = ORDER_STATUS[estado] || { label: estado, cls: 'text-bg-secondary' };
+    return <span className={`badge ${s.cls}`}>{s.label}</span>;
+  };
+
+  const tabs = [
+    { key: 'profile', icon: 'bi-person', label: 'Perfil' },
+    { key: 'orders', icon: 'bi-box-seam', label: 'Pedidos' },
+    { key: 'favorites', icon: 'bi-heart', label: 'Favoritos' },
+    { key: 'settings', icon: 'bi-gear', label: 'Configuración' },
+  ];
+
   return (
-    <div
-      className="container pt-5 pb-5 mt-4"
-      style={{ paddingTop: '4rem' }}
-    >
-      <h1 className="display-5 fw-bold text-dark mb-1">Mi Perfil</h1>
-      <p className="lead text-muted mb-4">
-        Gestiona tu cuenta y preferencias
-      </p>
+    <div className="container pt-5 pb-5 mt-4" style={{ paddingTop: '4rem' }}>
+      <h1 className="display-5 fw-bold mb-1">Mi Perfil</h1>
+      <p className="lead text-muted mb-4">Gestiona tu cuenta y preferencias</p>
 
-      {/* Tabs */}
-      <ul className="nav nav-pills mb-4 d-flex bg-light rounded-pill p-2">
-        {/* Perfil */}
-        <li className="nav-item flex-grow-1" role="presentation">
-          <button
-            type="button"
-            className={
-              'nav-link w-100 rounded-pill py-2 text-dark d-flex align-items-center justify-content-center ' +
-              (activeTab === 'profile' ? 'active bg-white shadow-sm' : '')
-            }
-            onClick={() => setActiveTab('profile')}
-          >
-            {profile.image_profile ? (
-              <img
-                src={profile.image_profile}
-                alt="Foto de Perfil"
-                className="rounded-circle me-2"
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  objectFit: 'cover',
-                }}
-              />
-            ) : (
-              <i className="bi bi-person me-2 fs-5"></i>
-            )}
-            Perfil
-          </button>
-        </li>
-
-        {/* Pedidos */}
-        <li className="nav-item flex-grow-1" role="presentation">
-          <button
-            type="button"
-            className={
-              'nav-link w-100 rounded-pill py-2 text-dark d-flex align-items-center justify-content-center ' +
-              (activeTab === 'orders' ? 'active bg-white shadow-sm' : '')
-            }
-            onClick={() => setActiveTab('orders')}
-          >
-            <i className="bi bi-box-seam me-2 fs-5"></i>
-            Pedidos
-          </button>
-        </li>
-
-        {/* Favoritos */}
-        <li className="nav-item flex-grow-1" role="presentation">
-          <button
-            type="button"
-            className={
-              'nav-link w-100 rounded-pill py-2 text-dark d-flex align-items-center justify-content-center ' +
-              (activeTab === 'favorites' ? 'active bg-white shadow-sm' : '')
-            }
-            onClick={() => setActiveTab('favorites')}
-          >
-            <i className="bi bi-heart me-2 fs-5"></i>
-            Favoritos
-          </button>
-        </li>
-
-        {/* Configuración */}
-        <li className="nav-item flex-grow-1" role="presentation">
-          <button
-            type="button"
-            className={
-              'nav-link w-100 rounded-pill py-2 text-dark d-flex align-items-center justify-content-center ' +
-              (activeTab === 'settings' ? 'active bg-white shadow-sm' : '')
-            }
-            onClick={() => setActiveTab('settings')}
-          >
-            <i className="bi bi-gear me-2 fs-5"></i>
-            Configuración
-          </button>
-        </li>
+      <ul className="nav nav-pills mb-4 d-flex bg-body-tertiary rounded-pill p-2">
+        {tabs.map((t) => (
+          <li className="nav-item flex-grow-1" key={t.key}>
+            <button
+              type="button"
+              className={'nav-link w-100 rounded-pill py-2 d-flex align-items-center justify-content-center ' + (activeTab === t.key ? 'active' : '')}
+              onClick={() => setActiveTab(t.key)}
+            >
+              <i className={`bi ${t.icon} me-2 fs-5`} />
+              {t.label}
+            </button>
+          </li>
+        ))}
       </ul>
 
-      {/* Contenido de tabs */}
       <div className="tab-content">
-        {/* TAB: Perfil */}
+        {/* PERFIL */}
         {activeTab === 'profile' && (
-          <div className="tab-pane fade show active">
-            {/* Info personal */}
+          <>
+            {/* Información personal */}
             <div className="card shadow-sm border-0 mb-4">
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5 className="card-title fw-bold mb-0">
-                    Información Personal
-                  </h5>
-                  <button
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={() => setEditPersonal((v) => !v)}
-                  >
-                    Editar
-                  </button>
+                  <h5 className="card-title fw-bold mb-0">Información Personal</h5>
+                  {!editPersonal && (
+                    <button className="btn btn-sm btn-outline-secondary" onClick={() => setEditPersonal(true)}>
+                      <i className="bi bi-pencil me-1" /> Editar
+                    </button>
+                  )}
                 </div>
+
+                {personalMsg && <div className={`alert alert-${personalMsg.type} py-2`}>{personalMsg.text}</div>}
 
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                    <label className="form-label text-muted small">
-                      Nombre completo
-                    </label>
+                    <label className="form-label text-muted small">Nombre</label>
                     {editPersonal ? (
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={profile.nombre || ''}
-                        onChange={(e) =>
-                          setProfile((prev) => ({
-                            ...prev,
-                            nombre: e.target.value,
-                          }))
-                        }
-                      />
-                    ) : (
-                      <p className="form-control-plaintext fw-semibold">
-                        {profile.nombre} {profile.apellido}
-                      </p>
-                    )}
+                      <input className="form-control" value={form.nombre}
+                        onChange={(e) => setForm((f) => ({ ...f, nombre: e.target.value }))} />
+                    ) : <p className="form-control-plaintext fw-semibold">{profile.nombre}</p>}
                   </div>
-
                   <div className="col-md-6 mb-3">
-                    <label className="form-label text-muted small">
-                      Email
-                    </label>
-                    <p className="form-control-plaintext fw-semibold">
-                      {profile.stl_email ||
-                        profile.emp_email ||
-                        'N/A'}
-                    </p>
-                  </div>
-
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label text-muted small">
-                      Teléfono
-                    </label>
+                    <label className="form-label text-muted small">Apellido</label>
                     {editPersonal ? (
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={editablePhone}
-                        onChange={handlePhoneChange}
-                      />
-                    ) : (
-                      <p className="form-control-plaintext fw-semibold">
-                        {profile.stl_telefono ||
-                          profile.emp_telefono ||
-                          'N/A'}
-                      </p>
-                    )}
+                      <input className="form-control" value={form.apellido}
+                        onChange={(e) => setForm((f) => ({ ...f, apellido: e.target.value }))} />
+                    ) : <p className="form-control-plaintext fw-semibold">{profile.apellido}</p>}
                   </div>
-
                   <div className="col-md-6 mb-3">
-                    <label className="form-label text-muted small">
-                      Nombre de Usuario
-                    </label>
-                    <p className="form-control-plaintext fw-semibold">
-                      {profile.stl_username ||
-                        profile.emp_username ||
-                        'N/A'}
-                    </p>
+                    <label className="form-label text-muted small">Teléfono</label>
+                    {editPersonal ? (
+                      <input className="form-control" value={form.telefono}
+                        onChange={(e) => setForm((f) => ({ ...f, telefono: e.target.value }))} />
+                    ) : <p className="form-control-plaintext fw-semibold">{telefono}</p>}
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label text-muted small">Email</label>
+                    <p className="form-control-plaintext fw-semibold">{email}</p>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label text-muted small">Nombre de Usuario</label>
+                    <p className="form-control-plaintext fw-semibold">{username}</p>
                   </div>
                 </div>
 
                 {editPersonal && (
-                  <div className="d-flex justify-content-end mt-3">
-                    <button
-                      className="btn btn-secondary me-2"
-                      onClick={() => cancelEdit('personal')}
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      className="btn btn-primary"
-                      onClick={savePersonal}
-                    >
-                      Guardar
+                  <div className="d-flex justify-content-end mt-2">
+                    <button className="btn btn-secondary me-2" onClick={() => { setEditPersonal(false); setPersonalMsg(null); }} disabled={savingPersonal}>Cancelar</button>
+                    <button className="btn btn-warning" onClick={savePersonal} disabled={savingPersonal}>
+                      {savingPersonal ? 'Guardando...' : 'Guardar'}
                     </button>
                   </div>
                 )}
@@ -362,237 +274,168 @@ const Profile = () => {
             </div>
 
             {/* Dirección */}
-            <div className="card shadow-sm border-0">
-              <div className="card-body">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <h5 className="card-title fw-bold mb-0">
-                    Dirección Personal
-                  </h5>
-                  <button
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={() => setEditAddress((v) => !v)}
-                  >
-                    Editar
-                  </button>
-                </div>
-
-                <div className="row">
-                  <div className="col-12 mb-3">
-                    <label className="form-label text-muted small">
-                      Dirección
-                    </label>
-                    {editAddress ? (
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={profile.address || ''}
-                        onChange={(e) =>
-                          setProfile((prev) => ({
-                            ...prev,
-                            address: e.target.value,
-                          }))
-                        }
-                      />
-                    ) : (
-                      <p className="form-control-plaintext fw-semibold">
-                        {profile.address}
-                      </p>
+            {isCustomer && (
+              <div className="card shadow-sm border-0">
+                <div className="card-body">
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h5 className="card-title fw-bold mb-0">Dirección</h5>
+                    {!editAddr && (
+                      <button className="btn btn-sm btn-outline-secondary" onClick={() => setEditAddr(true)}>
+                        <i className="bi bi-pencil me-1" /> Editar
+                      </button>
                     )}
                   </div>
 
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label text-muted small">
-                      Ciudad
-                    </label>
-                    {editAddress ? (
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={profile.city || ''}
-                        onChange={(e) =>
-                          setProfile((prev) => ({
-                            ...prev,
-                            city: e.target.value,
-                          }))
-                        }
-                      />
-                    ) : (
-                      <p className="form-control-plaintext fw-semibold">
-                        {profile.city}
+                  {addrMsg && <div className={`alert alert-${addrMsg.type} py-2`}>{addrMsg.text}</div>}
+
+                  {!editAddr ? (
+                    addr.direccion ? (
+                      <p className="mb-0">
+                        {addr.direccion}, {addr.ciudad}, {addr.pais}
+                        {addr.codigo_postal ? ` (${addr.codigo_postal})` : ''}
                       </p>
-                    )}
-                  </div>
-
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label text-muted small">
-                      Código Postal
-                    </label>
-                    {editAddress ? (
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={profile.postalCode || ''}
-                        onChange={(e) =>
-                          setProfile((prev) => ({
-                            ...prev,
-                            postalCode: e.target.value,
-                          }))
-                        }
-                      />
                     ) : (
-                      <p className="form-control-plaintext fw-semibold">
-                        {profile.postalCode}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {editAddress && (
-                  <div className="d-flex justify-content-end mt-3">
-                    <button
-                      className="btn btn-secondary me-2"
-                      onClick={() => cancelEdit('address')}
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      className="btn btn-primary"
-                      onClick={saveAddress}
-                    >
-                      Guardar
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB: Orders */}
-        {activeTab === 'orders' && (
-          <div className="tab-pane fade show active">
-            <div className="card shadow-sm border-0 p-4">
-              <h5 className="card-title fw-bold mb-3">
-                Últimos 10 Pedidos
-              </h5>
-              {orders.length === 0 ? (
-                <div className="alert alert-info mb-0">
-                  No has realizado ningún pedido aún.
-                </div>
-              ) : (
-                <div className="list-group">
-                  {orders.map((order) => (
-                    <div
-                      key={order.id}
-                      className="list-group-item list-group-item-action d-flex justify-content-between align-items-center mb-2 rounded"
-                    >
-                      <div>
-                        <h6 className="mb-1 fw-bold">
-                          Pedido #{order.id}
-                        </h6>
-                        <small className="text-muted">
-                          Fecha: {order.date}
-                        </small>
-                        <br />
-                        <small className="text-muted">
-                          Estado:{' '}
-                          <span
-                            className={
-                              order.status === 'Completado'
-                                ? 'text-success'
-                                : 'text-warning'
-                            }
-                          >
-                            {order.status}
-                          </span>
-                        </small>
+                      <p className="text-muted mb-0">No tienes una dirección registrada.</p>
+                    )
+                  ) : (
+                    <>
+                      <div className="row g-3">
+                        <div className="col-12">
+                          <label className="form-label text-muted small">Dirección *</label>
+                          <input className="form-control" value={addr.direccion}
+                            onChange={(e) => setAddr((p) => ({ ...p, direccion: e.target.value }))} />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label text-muted small">Ciudad *</label>
+                          <input className="form-control" value={addr.ciudad}
+                            onChange={(e) => setAddr((p) => ({ ...p, ciudad: e.target.value }))} />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label text-muted small">País *</label>
+                          <input className="form-control" value={addr.pais}
+                            onChange={(e) => setAddr((p) => ({ ...p, pais: e.target.value }))} />
+                        </div>
+                        <div className="col-md-4">
+                          <label className="form-label text-muted small">Código postal</label>
+                          <input className="form-control" value={addr.codigo_postal}
+                            onChange={(e) => setAddr((p) => ({ ...p, codigo_postal: e.target.value }))} />
+                        </div>
                       </div>
-                      <span className="badge bg-primary rounded-pill">
-                        $
-                        {order.total.toLocaleString('es-CL')}
-                      </span>
-                    </div>
-                  ))}
+                      <div className="d-flex justify-content-end mt-3">
+                        <button className="btn btn-secondary me-2" onClick={() => { setEditAddr(false); setAddrMsg(null); fetchAddress(); }} disabled={savingAddr}>Cancelar</button>
+                        <button className="btn btn-warning" onClick={saveAddress} disabled={savingAddr}>
+                          {savingAddr ? 'Guardando...' : 'Guardar'}
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* PEDIDOS */}
+        {activeTab === 'orders' && (
+          <div className="card shadow-sm border-0 p-4">
+            <h5 className="card-title fw-bold mb-3">Mis Pedidos</h5>
+            {ordersLoading ? (
+              <div className="text-center py-4"><div className="spinner-border" role="status" /></div>
+            ) : ordersError ? (
+              <div className="alert alert-danger mb-0">{ordersError}</div>
+            ) : orders.length === 0 ? (
+              <div className="alert alert-info mb-0">No has realizado ningún pedido aún.</div>
+            ) : (
+              <div className="list-group">
+                {orders.map((o) => (
+                  <div key={o.uuid_pedido} className="list-group-item d-flex justify-content-between align-items-center mb-2 rounded">
+                    <div>
+                      <h6 className="mb-1 fw-bold">Pedido #{String(o.uuid_pedido).slice(0, 8)}</h6>
+                      <small className="text-muted d-block">
+                        Fecha: {o.fecha_pedido ? new Date(o.fecha_pedido).toLocaleDateString('es-CL') : '—'}
+                      </small>
+                      <small className="text-muted">{o.items} artículo(s) · {o.metodo_entrega || 'sin método'}</small>
+                    </div>
+                    <div className="text-end">
+                      <div className="mb-1">{renderStatus(o.estado)}</div>
+                      <span className="fw-bold">{formatPrice(o.precio)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-        {/* TAB: Favorites */}
+        {/* FAVORITOS */}
         {activeTab === 'favorites' && (
-          <div className="tab-pane fade show active">
-            <div className="card shadow-sm border-0 p-4">
-              <h5 className="card-title fw-bold mb-3">
-                Mi Lista de Deseos
-              </h5>
-              {wishlist.length === 0 ? (
-                <div className="alert alert-info mb-0">
-                  Tu lista de deseos está vacía.
-                </div>
-              ) : (
-                <div className="row row-cols-1 row-cols-md-3 g-3">
-                  {wishlist.map((item) => (
-                    <div className="col" key={item.id}>
+          <div className="card shadow-sm border-0 p-4">
+            <h5 className="card-title fw-bold mb-3">Mi Lista de Deseos</h5>
+            {wishlist.items.length === 0 ? (
+              <div className="alert alert-info mb-0">Tu lista de deseos está vacía.</div>
+            ) : (
+              <div className="row row-cols-1 row-cols-md-3 g-3">
+                {wishlist.items.map((item) => {
+                  const offer = hasOffer(item);
+                  return (
+                    <div className="col" key={item.id_producto}>
                       <div className="card h-100">
                         <img
-                          src={item.image}
-                          className="card-img-top"
-                          alt={item.name}
-                          style={{
-                            height: '200px',
-                            objectFit: 'cover',
-                          }}
+                          src={item.imagen_url || 'https://via.placeholder.com/200x260?text=Sin+imagen'}
+                          className="card-img-top" alt={item.nombre}
+                          style={{ height: 200, objectFit: 'cover' }}
                         />
-                        <div className="card-body">
-                          <h6 className="card-title fw-bold">
-                            {item.name}
-                          </h6>
-                          <p className="card-text text-muted small">
-                            {item.category}
+                        <div className="card-body d-flex flex-column">
+                          <h6 className="card-title fw-bold">{item.nombre}</h6>
+                          <p className="card-text text-muted small mb-1">{item.editorial || ''}</p>
+                          <p className="fw-bold mb-3">
+                            {offer ? (
+                              <>
+                                <span className="text-decoration-line-through text-muted me-2 small">{formatPrice(item.precio)}</span>
+                                <span className="text-danger">{formatPrice(item.precio_oferta)}</span>
+                              </>
+                            ) : formatPrice(item.precio)}
                           </p>
-                          <p className="fw-bold text-primary">
-                            $
-                            {item.price.toLocaleString('es-CL')}
-                          </p>
-                          <div className="d-flex justify-content-between">
-                            <button className="btn btn-sm btn-outline-success">
-                              Añadir al Carrito
+                          <div className="mt-auto d-flex justify-content-between gap-2">
+                            <button className="btn btn-sm btn-outline-success flex-grow-1"
+                              onClick={() => addToCart(item)}>
+                              <i className="bi bi-cart-plus me-1" /> Carrito
                             </button>
-                            <button
-                              className="btn btn-sm btn-outline-danger"
-                              onClick={() =>
-                                removeFromWishlist(item.id)
-                              }
-                            >
-                              <i className="bi bi-x-lg"></i>
+                            <button className="btn btn-sm btn-outline-danger"
+                              onClick={() => wishlist.remove(item.id_producto)}>
+                              <i className="bi bi-trash3" />
                             </button>
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
-        {/* TAB: Settings */}
+        {/* CONFIGURACIÓN */}
         {activeTab === 'settings' && (
-          <div className="tab-pane fade show active">
-            <div className="card shadow-sm border-0 p-4">
-              <h5 className="card-title fw-bold mb-3">
-                Configuración de la Cuenta
-              </h5>
-              <p className="text-muted">
-                Aquí podrás gestionar la configuración de tu cuenta, como
-                cambiar la contraseña, notificaciones, etc.
-              </p>
-              <button className="btn btn-warning">
-                Cambiar Contraseña
+          <div className="card shadow-sm border-0 p-4">
+            <h5 className="card-title fw-bold mb-3">Cambiar Contraseña</h5>
+            {pwdMsg && <div className={`alert alert-${pwdMsg.type} py-2`}>{pwdMsg.text}</div>}
+            <form onSubmit={changePassword} style={{ maxWidth: 420 }}>
+              <div className="mb-3">
+                <label className="form-label text-muted small">Nueva contraseña</label>
+                <input type="password" className="form-control" value={pwd.nueva}
+                  onChange={(e) => setPwd((p) => ({ ...p, nueva: e.target.value }))} required />
+              </div>
+              <div className="mb-3">
+                <label className="form-label text-muted small">Repetir contraseña</label>
+                <input type="password" className="form-control" value={pwd.repetir}
+                  onChange={(e) => setPwd((p) => ({ ...p, repetir: e.target.value }))} required />
+              </div>
+              <button type="submit" className="btn btn-warning" disabled={pwdSaving}>
+                {pwdSaving ? 'Guardando...' : 'Actualizar contraseña'}
               </button>
-            </div>
+            </form>
           </div>
         )}
       </div>

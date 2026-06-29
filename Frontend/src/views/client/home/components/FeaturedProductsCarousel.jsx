@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { getFeaturedPublic } from "../services/featuredPublicService";
 import ProductCard from "../../catalogo/components/ProductCard";
+import CarouselArrow from "../../../../components/CarouselArrow";
 
 const chunk = (arr, size) => {
   const out = [];
@@ -97,44 +98,19 @@ const FeaturedProductsCarousel = () => {
         </div>
       </div>
 
-      {/* Flechas afuera + negras */}
+      {/* Flechas de navegación */}
       {slides.length > 1 && (
         <>
-          <button
-            className="btn btn-light border position-absolute top-50 translate-middle-y"
-            type="button"
+          <CarouselArrow
+            side="left"
             data-bs-target={`#${carouselId}`}
             data-bs-slide="prev"
-            style={{
-              left: "0.5rem",
-              width: "44px",
-              height: "44px",
-              borderRadius: "999px",
-              display: "grid",
-              placeItems: "center",
-            }}
-            aria-label="Anterior"
-          >
-            <i className="bi bi-chevron-left fs-4 text-dark" />
-          </button>
-
-          <button
-            className="btn btn-light border position-absolute top-50 translate-middle-y"
-            type="button"
+          />
+          <CarouselArrow
+            side="right"
             data-bs-target={`#${carouselId}`}
             data-bs-slide="next"
-            style={{
-              right: "0.5rem",
-              width: "44px",
-              height: "44px",
-              borderRadius: "999px",
-              display: "grid",
-              placeItems: "center",
-            }}
-            aria-label="Siguiente"
-          >
-            <i className="bi bi-chevron-right fs-4 text-dark" />
-          </button>
+          />
         </>
       )}
     </div>

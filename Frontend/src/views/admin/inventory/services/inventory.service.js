@@ -1,29 +1,12 @@
-import axios from "axios";
+import api from "../../../../services/api";
 
-const API = "http://localhost:3000/api/inventory";
+// Montado en el backend bajo /api/admin/inventory
+const BASE = "/admin/inventory";
 
 export const inventoryService = {
-  listProducts: async (token) => {
-    const res = await axios.get(`${API}/products`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data;
-  },
+  listProducts: () => api.get(`${BASE}/products`),
 
-  adjustStock: async (payload, token) => {
-    const res = await axios.post(`${API}/adjust`, payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    return res.data;
-  },
+  adjustStock: (payload) => api.post(`${BASE}/adjust`, payload),
 
-  listMovements: async (token) => {
-    const res = await axios.get(`${API}/movements`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return res.data;
-  },
+  listMovements: () => api.get(`${BASE}/movements`),
 };

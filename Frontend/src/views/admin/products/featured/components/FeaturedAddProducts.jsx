@@ -52,7 +52,7 @@ const FeaturedAddProducts = ({ disabledIds, onAdd, busy }) => {
   }, [page, search]);
 
   return (
-    <div className="border rounded p-3">
+    <div>
       <div className="d-flex gap-2 mb-3">
         <input
           className="form-control"

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { authService } from './services/authService';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -30,10 +30,7 @@ const Register = () => {
     setSuccess(null);
 
     try {
-      await axios.post(
-        'http://localhost:3000/api/auth/register/customer',
-        form
-      );
+      await authService.register(form);
 
       setSuccess(
         'Registro exitoso. Serás redirigido para iniciar sesión.'
@@ -44,10 +41,7 @@ const Register = () => {
       }, 2000);
     } catch (err) {
       console.error('Registro Error:', err);
-      setError(
-        err.response?.data?.message ||
-          'Error al registrar. Intenta con otro email o usuario.'
-      );
+      setError(err.message || 'Error al registrar. Intenta con otro email o usuario.');
     } finally {
       setIsLoading(false);
     }

@@ -13,6 +13,8 @@ import profileRoutes   from '../../modules/employees/profile/routes/profile.rout
 import userRoutes      from '../../modules/users/routes/user.routes.js';
 
 import orderRoutes     from '../../modules/orders/routes/orders.admin.routes.js';
+import reviewRoutes    from '../../modules/reviews/routes/review.admin.routes.js';
+import shippingRoutes  from '../../modules/shipping/routes/shipping.admin.routes.js';
 
 const router = Router();
 
@@ -33,5 +35,7 @@ router.use('/users',      requireRole(...ADMIN_ROLES), userRoutes);
 router.use('/orders',     requireRole(...ADMIN_ROLES), orderRoutes);
 router.use('/offers',     requireRole(...ADMIN_ROLES), offersRoutes);
 router.use('/featured',   requireRole(...ADMIN_ROLES), featuredRoutes);
+router.use('/reviews',    requireRole(...ADMIN_ROLES), reviewRoutes);
+router.use('/shipping',   requireRole(...ADMIN_ROLES), shippingRoutes);
 
 export default router;

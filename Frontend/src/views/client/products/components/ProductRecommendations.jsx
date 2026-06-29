@@ -55,6 +55,7 @@ const ProductRecommendations = ({ product }) => {
     };
 
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id_producto, editorialName, genreName]);
 
   if (!product) return null;

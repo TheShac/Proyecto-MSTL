@@ -3,7 +3,7 @@ import { formatCLP } from "../utils/formatters";
 
 const OrderDetailsModal = ({ show, loading, data, onClose }) => {
   const order = data?.order || null;
-  const items = Array.isArray(data?.items) ? data.items : [];
+  const items = useMemo(() => (Array.isArray(data?.items) ? data.items : []), [data]);
   const address = data?.address || null;
 
   const computed = useMemo(() => {

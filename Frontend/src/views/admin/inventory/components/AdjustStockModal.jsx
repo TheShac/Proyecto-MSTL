@@ -39,12 +39,6 @@ const AdjustStockModal = ({ show, product, onClose, onConfirm, isSaving }) => {
       return;
     }
 
-    let newStock = stockActual;
-
-    if (type === 'entrada') newStock += Number(qty);
-    if (type === 'salida') newStock -= Number(qty);
-    if (type === 'ajuste') newStock = Number(qty);
-
     onConfirm({
       id_producto: product.id_producto,
       tipo: type,

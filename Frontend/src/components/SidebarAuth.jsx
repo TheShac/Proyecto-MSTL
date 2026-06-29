@@ -1,28 +1,33 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { authService } from '../views/shared/services/authService';
+import { useAuth } from '../stores/AuthContext';
 import './Styles/Sidebar.css';
 
 const SidebarAuth = ({ open, onClose }) => {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const auth = useAuth();
 
   if (!open) return null;
 
   const login = async () => {
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/login', {
-        identifier,
-        password,
-      });
+      const data = await authService.login(identifier, password);
 
-      localStorage.setItem('accessToken', res.data.accessToken);
+      auth.login({
+        accessToken: data.token,
+        role: data.role,
+        userType: data.userType,
+        id: data.id,
+        username: data.username,
+      });
 
       onClose();
       navigate('/');
     } catch (err) {
-      alert(err.response?.data?.message || 'Error de inicio de sesión');
+      alert(err.message || 'Error de inicio de sesión');
     }
   };
 

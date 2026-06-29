@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../../stores/AuthContext';
+import { authService } from './services/authService';
 
 const Login = () => {
   const auth = useAuth();
@@ -19,12 +19,9 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/login', {
-        identifier,
-        password,
-      });
+      const data = await authService.login(identifier, password);
 
-      const { token, role, userType, id, username } = response.data;
+      const { token, role, userType, id, username } = data;
 
       auth.login({
         accessToken: token,
@@ -57,11 +54,7 @@ const Login = () => {
 
     } catch (err) {
       console.error('Error de inicio de sesión:', err);
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          'Credenciales inválidas. Verifica tus datos.'
-      );
+      setError(err.message || 'Credenciales inválidas. Verifica tus datos.');
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +62,7 @@ const Login = () => {
 
   // ✅ Google Login: redirige al backend
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:3000/api/auth/google';
+    window.location.href = authService.googleLoginUrl();
   };
 
   return (

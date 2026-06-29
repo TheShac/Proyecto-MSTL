@@ -57,6 +57,25 @@ export const OrderModel = {
     };
   },
 
+  // SEGUIMIENTO PÚBLICO (por id de pedido, sin datos sensibles)
+  findTracking: async (uuid_pedido) => {
+    const [[row]] = await pool.query(
+      `SELECT
+        p.uuid_pedido,
+        p.estado,
+        p.fecha_pedido,
+        p.precio,
+        p.metodo_entrega,
+        COUNT(dp.id_detalle_pedido) AS items
+      FROM Pedido p
+      LEFT JOIN Detalle_Pedido dp ON p.uuid_pedido = dp.uuid_pedido
+      WHERE p.uuid_pedido = ? AND p.estado <> 'carrito'
+      GROUP BY p.uuid_pedido`,
+      [uuid_pedido]
+    );
+    return row || null;
+  },
+
   // CAMBIAR ESTADO DEL PEDIDO
   updateStatus: async (uuid_pedido, estado) => {
     const [res] = await pool.query(

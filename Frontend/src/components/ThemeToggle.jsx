@@ -1,13 +1,13 @@
 import React from "react";
 import { useTheme } from "../stores/ThemeContext.jsx";
 
-const ThemeToggle = () => {
+const ThemeToggle = ({ className = "btn btn-outline-dark" }) => {
   const { isDark, toggleTheme } = useTheme();
 
   return (
     <button
       type="button"
-      className="btn btn-outline-dark d-flex align-items-center gap-2"
+      className={`${className} d-flex align-items-center justify-content-center gap-2`}
       onClick={toggleTheme}
       title={isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
     >

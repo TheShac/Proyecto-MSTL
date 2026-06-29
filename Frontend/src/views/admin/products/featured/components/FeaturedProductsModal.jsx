@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 
 import FeaturedSelectedList from "./FeaturedSelectedList";
 import FeaturedAddProducts from "./FeaturedAddProducts";
+import "./featuredModal.css";
 
 import {
   getFeaturedAdmin,
@@ -172,42 +173,14 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
 
   const modalUI = (
     <>
-      <div
-        onClick={handleClose}
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: "rgba(0,0,0,.55)",
-          zIndex: 2050,
-        }}
-      />
+      <div className="featured-modal-overlay" onClick={handleClose} />
 
-      <div
-        role="dialog"
-        aria-modal="true"
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 2060,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "1rem",
-        }}
-      >
-        {/* ✅ en vez de bg-white, usamos modal-content para que el CSS dark lo tome */}
+      <div className="featured-modal-wrap" role="dialog" aria-modal="true">
         <div
-          className="modal-content rounded-4 shadow"
+          className="featured-modal-panel rounded-4 shadow"
           onClick={(e) => e.stopPropagation()}
-          style={{
-            width: "min(1200px, 100%)",
-            maxHeight: "85vh",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-          }}
         >
-          <div className="p-3 border-bottom d-flex justify-content-between align-items-start">
+          <div className="featured-modal-header p-3 d-flex justify-content-between align-items-start">
             <div>
               <h5 className="fw-bold m-0">Gestionar Productos Destacados</h5>
               <div className="text-muted small">
@@ -218,42 +191,46 @@ const FeaturedProductsModal = ({ show, onClose, token }) => {
             <button type="button" className="btn-close" onClick={handleClose} disabled={busy} />
           </div>
 
-          <div className="p-3" style={{ overflowY: "auto", overflowX: "hidden" }}>
+          <div className="featured-modal-body p-3">
             {errorMsg && <div className="alert alert-danger">{errorMsg}</div>}
 
             <div className="row g-4">
               <div className="col-12 col-lg-6">
-                <h6 className="fw-bold mb-2">Destacados actuales</h6>
+                <div className="featured-panel-box">
+                  <h6 className="fw-bold mb-3">Destacados actuales</h6>
 
-                <FeaturedSelectedList
-                  items={items}
-                  busy={busy}
-                  onRemove={handleRemove}
-                  onToggleActive={handleToggleActive}
-                  onMoveUp={onMoveUp}
-                  onMoveDown={onMoveDown}
-                  onReorder={handleReorderDrag}
-                />
+                  <FeaturedSelectedList
+                    items={items}
+                    busy={busy}
+                    onRemove={handleRemove}
+                    onToggleActive={handleToggleActive}
+                    onMoveUp={onMoveUp}
+                    onMoveDown={onMoveDown}
+                    onReorder={handleReorderDrag}
+                  />
+                </div>
               </div>
 
               <div className="col-12 col-lg-6">
-                <h6 className="fw-bold mb-2">Agregar producto a destacados</h6>
+                <div className="featured-panel-box">
+                  <h6 className="fw-bold mb-3">Agregar producto a destacados</h6>
 
-                <FeaturedAddProducts
-                  disabledIds={disabledIds}
-                  onAdd={handleAdd}
-                  busy={busy}
-                />
+                  <FeaturedAddProducts
+                    disabledIds={disabledIds}
+                    onAdd={handleAdd}
+                    busy={busy}
+                  />
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="p-3 border-top d-flex justify-content-end gap-2">
+          <div className="featured-modal-footer p-3 d-flex justify-content-end gap-2">
             <button className="btn btn-outline-secondary" type="button" onClick={handleClose} disabled={busy}>
               Cerrar
             </button>
 
-            <button className="btn btn-dark" type="button" onClick={loadFeatured} disabled={busy}>
+            <button className="btn btn-warning" type="button" onClick={loadFeatured} disabled={busy}>
               <i className="bi bi-arrow-clockwise me-2" />
               Refrescar
             </button>

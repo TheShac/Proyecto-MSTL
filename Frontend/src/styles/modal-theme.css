@@ -1,0 +1,29 @@
+/* Tema unificado para todos los modales de Bootstrap, con el mismo diseño
+   que el modal "Gestionar Productos Destacados".
+   Usa variables de tema, así que se ve consistente en claro y oscuro. */
+
+.modal-content {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+}
+
+.modal-header,
+.modal-footer {
+  background-color: var(--bs-secondary-bg);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--bs-border-color);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--bs-border-color);
+}
+
+.modal-title {
+  font-weight: 700;
+}

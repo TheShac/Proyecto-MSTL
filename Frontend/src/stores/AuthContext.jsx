@@ -1,9 +1,11 @@
 import React, {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
+import { getExpiryMs } from '../services/token';
 
 const AuthContext = createContext(null);
 
@@ -67,6 +69,24 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('id');
     localStorage.removeItem('username');
   };
+
+  // Auto-logout cuando el token expira (al cargar si ya venció, o con un
+  // temporizador mientras la app está abierta).
+  useEffect(() => {
+    if (!token) return;
+
+    const expMs = getExpiryMs(token);
+    if (!expMs) return;
+
+    const remaining = expMs - Date.now();
+    if (remaining <= 0) {
+      logout();
+      return;
+    }
+
+    const timer = setTimeout(() => logout(), remaining);
+    return () => clearTimeout(timer);
+  }, [token]);
 
   const value = {
     token,

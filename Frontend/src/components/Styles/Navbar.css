@@ -1,37 +1,132 @@
-.navbar {
+/* ── Header / navbar ──────────────────────────────────────────────────── */
+.app-navbar {
   position: sticky;
   top: 0;
   z-index: 1000;
+  background-color: var(--bs-body-bg);
+  border-bottom: 1px solid var(--bs-border-color);
 }
 
-/* ✅ Logo arreglado (no se corta) */
-.brand-logo {
-  overflow: visible !important;
+.app-navbar__top {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1.5rem;
 }
 
-.navbar-logo {
-  width: 65px;
-  height: 65px;
+.app-navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--bs-body-color);
+  justify-self: start;
+  flex-shrink: 0;
+}
+
+.app-navbar__logo {
+  width: 56px;
+  height: 56px;
   object-fit: contain;
   display: block;
 }
 
-/* ✅ Dropdown profesional */
+/* ── Buscador ─────────────────────────────────────────────────────────── */
+.app-navbar__search {
+  justify-self: center;
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--bs-secondary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 999px;
+  padding: 0.45rem 1.1rem;
+}
+.app-navbar__search i {
+  color: var(--bs-secondary-color);
+}
+.app-navbar__search input {
+  flex: 1 1 auto;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--bs-body-color);
+  font-size: 0.92rem;
+}
+.app-navbar__search input::placeholder {
+  color: var(--bs-secondary-color);
+}
+
+.app-navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-self: end;
+  flex-shrink: 0;
+}
+
+/* En pantallas pequeñas: logo + acciones arriba, buscador a lo ancho debajo. */
+@media (max-width: 700px) {
+  .app-navbar__top {
+    grid-template-columns: auto 1fr;
+  }
+  .app-navbar__search {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+}
+
+/* ── Barra de navegación secundaria ───────────────────────────────────── */
+.secondary-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.25rem 1rem;
+  background-color: var(--bs-tertiary-bg);
+  border-top: 1px solid var(--bs-border-color);
+}
+
+.secondary-nav__link {
+  background: transparent;
+  border: none;
+  color: var(--bs-body-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.secondary-nav__link:hover {
+  background-color: var(--bs-secondary-bg);
+  color: var(--bs-body-color);
+}
+.secondary-nav__link.active {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+/* ── Dropdown "Mi cuenta" ─────────────────────────────────────────────── */
 .dropdown-custom-menu {
   position: absolute;
   right: 0;
   top: 120%;
-  background: #fff;
+  background: var(--bs-body-bg);
   min-width: 240px;
   border-radius: 14px;
   padding: 10px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--bs-border-color);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
   z-index: 2000;
   animation: dropdownFade 0.18s ease-out;
 }
 
-/* Items */
 .dropdown-custom-item {
   display: flex;
   align-items: center;
@@ -40,7 +135,7 @@
   border-radius: 10px;
   font-weight: 500;
   text-decoration: none;
-  color: #212529;
+  color: var(--bs-body-color);
   transition: 0.15s ease;
   background: transparent;
   width: 100%;
@@ -49,15 +144,14 @@
 }
 
 .dropdown-custom-item:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--bs-secondary-bg);
 }
 
 .dropdown-custom-divider {
   margin: 8px 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  border-top: 1px solid var(--bs-border-color);
 }
 
-/* Animación */
 @keyframes dropdownFade {
   from {
     opacity: 0;

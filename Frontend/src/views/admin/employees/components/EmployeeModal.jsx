@@ -1,5 +1,7 @@
 import React from "react";
 
+const RequiredStar = () => <span className="text-danger ms-1">*</span>;
+
 const EmployeeModal = ({
   show,
   isEditing,
@@ -12,8 +14,6 @@ const EmployeeModal = ({
 }) => {
   if (!show) return null;
 
-  const RequiredStar = () => <span className="text-danger ms-1">*</span>;
-
   return (
     <div
       className="modal fade show d-block"
@@ -21,8 +21,8 @@ const EmployeeModal = ({
       style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
     >
       <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content shadow rounded-4 border-0">
-          <div className="modal-header bg-warning text-dark">
+        <div className="modal-content">
+          <div className="modal-header">
             <h5 className="modal-title">
               {isEditing ? "Editar Empleado" : "Agregar Empleado"}
             </h5>
@@ -115,7 +115,7 @@ const EmployeeModal = ({
               </div>
             </div>
 
-            <div className="modal-footer border-0">
+            <div className="modal-footer">
               <button
                 type="button"
                 className="btn btn-secondary"

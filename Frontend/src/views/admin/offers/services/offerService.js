@@ -1,41 +1,15 @@
-import axios from "axios";
+import api from "../../../../services/api";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
+// ======= OFFERS (portal admin: /api/admin/offers) =======
+export const getOffersAdmin = () => api.get("/admin/offers/admin");
 
-// ======= OFFERS =======
-export const getOffersAdmin = async (token) => {
-  const { data } = await axios.get(`${API}/api/offers/admin`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return data;
-};
+export const addOffer = (payload) => api.post("/admin/offers", payload);
 
-export const addOffer = async (payload, token) => {
-  const { data } = await axios.post(`${API}/api/offers`, payload, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return data;
-};
+export const updateOffer = (id_producto, payload) =>
+  api.put(`/admin/offers/${id_producto}`, payload);
 
-export const updateOffer = async (id_producto, payload, token) => {
-  const { data } = await axios.put(`${API}/api/offers/${id_producto}`, payload, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return data;
-};
+export const removeOffer = (id_producto) =>
+  api.del(`/admin/offers/${id_producto}`);
 
-export const removeOffer = async (id_producto, token) => {
-  const { data } = await axios.delete(`${API}/api/offers/${id_producto}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return data;
-};
-
-// ======= PRODUCTS (para el buscador del modal) =======
-// Usamos /api/products que tú ya tienes en backend
-export const getAllProductsForOffer = async (token) => {
-  const { data } = await axios.get(`${API}/api/products`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return data; // {success, data:[...]}
-};
+// ======= PRODUCTS (buscador del modal — listado público) =======
+export const getAllProductsForOffer = () => api.get("/products");

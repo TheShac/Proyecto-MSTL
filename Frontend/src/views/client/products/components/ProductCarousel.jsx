@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import ProductCard from "../../catalogo/components/ProductCard";
+import CarouselArrow from "../../../../components/CarouselArrow";
 import "../styles/productCarousel.css";
 
 const ProductCarousel = ({ title, products, emptyText = "No hay productos para mostrar." }) => {
@@ -38,14 +39,7 @@ const ProductCarousel = ({ title, products, emptyText = "No hay productos para m
       {title ? <h5 className="fw-bold mb-3">{title}</h5> : null}
 
       {/* Flecha izq */}
-      <button
-        type="button"
-        className="carousel-nav-btn carousel-nav-btn--left"
-        onClick={() => scrollBy(-1)}
-        aria-label="Anterior"
-      >
-        <i className="bi bi-chevron-left"></i>
-      </button>
+      <CarouselArrow side="left" onClick={() => scrollBy(-1)} />
 
       {/* Carrusel */}
       <div ref={ref} className="product-carousel">
@@ -57,14 +51,7 @@ const ProductCarousel = ({ title, products, emptyText = "No hay productos para m
       </div>
 
       {/* Flecha der */}
-      <button
-        type="button"
-        className="carousel-nav-btn carousel-nav-btn--right"
-        onClick={() => scrollBy(1)}
-        aria-label="Siguiente"
-      >
-        <i className="bi bi-chevron-right"></i>
-      </button>
+      <CarouselArrow side="right" onClick={() => scrollBy(1)} />
 
       {/* Puntos */}
       <div className="d-flex justify-content-center gap-2 mt-3">
